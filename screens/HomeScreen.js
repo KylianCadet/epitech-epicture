@@ -11,12 +11,10 @@ import {
 	Button,
 } from 'react-native';
 
-import { MonoText } from '../components/StyledText';
-
 export default function HomeScreen() {
 	return (
-		<View style={{flex:1, justifyContent:"center"}}>
-			<Button title="Press me if you're a naughty boyz" onPress={() => {console.log("oui")}}></Button>
+		<View style={{ flex: 1, justifyContent: "center" }}>
+			<Button title="Press me if you're a naughty boyz" onPress={() => { console.log("oui") }}></Button>
 		</View>
 	);
 }

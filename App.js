@@ -26,46 +26,81 @@ import FitButton from './components/FitButton'
 // import FadeIn from './animation/FadeIn'
 // import LoadImage from './components/LoadImage'
 
-function openAuthorize() {
-	Linking.openURL('https://api.imgur.com/oauth2/authorize?client_id=' + client_id + '&response_type=token')
-}
+// function openAuthorize() {
+// 	Linking.openURL('https://api.imgur.com/oauth2/authorize?client_id=' + client_id + '&response_type=token')
+// }
 
+
+{/* <Button title='TEST' onPress={() => {
+	fetch("https://api.imgur.com/3/gallery/hot", {
+		headers: {
+			Authorization: "Client-ID " + client_id
+		}
+	})
+		.then((response) => response.json())
+		.then((data) => console.log(data.data))
+}}></Button> */}
+
+function parse_query(queryString) {
+	var tokens = queryString.split('#')
+	if (tokens.length != 2)
+		return;
+	var queries = tokens[1].split('&')
+	var params = {}
+	for (var i = 0; i < queries.length; i++) {
+		params[queries[i].split('=')[0]] = queries[i].split('=')[1]
+	}
+	return (params)
+}
 export default class App extends React.Component {
 	constructor(props) {
 		super(props)
-		this._id = null
+		this.token = null
 		this.state = {
-			login: false,
-			webview: false
+			login: true,
+			webview: false,
+			nav: false,
 		}
 	}
 
 	_login() {
-		const uri = 'https://api.imgur.com/oauth2/authorize?client_id=' + client_id + '&response_type=token'
-		if (!this.state.login && !this.state.webview) {
+		if (this.state.login) {
 			return (
 				<View style={[styles.container]}>
 					<Image source={require('./assets/images/Epicture.png')} style={{ flex: 1, width: null, height: null, resizeMode: 'contain', marginBottom: 'auto' }} />
 					<View style={{ flex: 1 }}>
-						<FitButton style={{}} title='Login with your Imgur account' onPress={() => this.setState({ webview: true })}
+						<FitButton style={{}} title='Login with your Imgur account' onPress={() => this.setState({ webview: true, login: false })}
 						/>
 						<TextButton style={{ marginLeft: 'auto', marginTop: 'auto' }} text='Continue as a guest' onPress={() => {
-							this.setState({ login: true })
+							this.setState({ nav: true, login: false })
 						}} />
 					</View>
 				</View>
 			)
-		} else if (this.state.webview) {
+		}
+	}
+
+	_webview() {
+		const uri = 'https://api.imgur.com/oauth2/authorize?client_id=' + client_id + '&response_type=token'
+		if (this.state.webview) {
 			return (
 				<WebView
 					source={{ uri }}
+					onNavigationStateChange={(webview) => {
+						var token = parse_query(webview.url)
+						if (!token)
+							return;
+						if (token['access_token']) {
+							this.token = token
+							this.setState({ nav: true, webview: false })
+						}
+					}}
 				/>
 			)
 		}
 	}
-
 	_nav() {
-		if (this.state.login && !this.state.webview) {
+		if (this.state.nav) {
 			return (
 				<AppNavigator />
 			)
@@ -74,6 +109,7 @@ export default class App extends React.Component {
 	render() {
 		return (
 			<View style={styles.container}>
+				{this._webview()}
 				{this._login()}
 				{this._nav()}
 			</View>
