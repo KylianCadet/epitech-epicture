@@ -5,76 +5,64 @@ import { createBottomTabNavigator } from 'react-navigation-tabs'
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import UploadScreen from '../screens/UploadScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
-const config = Platform.select({
-	web: { headerMode: 'screen' },
-	default: {},
-});
 
-const HomeStack = createStackNavigator(
-	{
-		Home: HomeScreen,
+const HomeStack = createStackNavigator({
+	Home: {
+		screen: HomeScreen,
 	},
-	config
-);
+	Other: {
+		screen: ProfileScreen,
+	},
+});
 
 HomeStack.navigationOptions = {
 	tabBarLabel: 'Home',
-	// tabBarIcon: ({ focused }) => (
-	// 	<TabBarIcon
-	// 		focused={focused}
-	// 		name={Platform.OS === 'ios' ? `ios-information-circle${focused ? '' : '-outline'}` : 'md-information-circle'}
-	// 	/>
-	// ),
+	tabBarIcon: ({ focused }) => (
+		<TabBarIcon
+			focused={focused}
+			name={Platform.OS === 'ios' ? `ios-information-circle${focused ? '' : '-outline'}` : 'md-information-circle'}
+		/>
+	),
 };
 
-HomeStack.path = '';
-
-const LinksStack = createStackNavigator(
+const UploadStack = createStackNavigator(
 	{
-		Links: LinksScreen,
+		Upload: UploadScreen,
 	},
-	config
 );
 
-LinksStack.navigationOptions = {
-	tabBarLabel: 'Links',
-	// tabBarIcon: ({ focused }) => (
-	// 	<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'} />
-	// ),
+UploadStack.navigationOptions = {
+	tabBarLabel: 'Upload',
+	tabBarIcon: ({ focused }) => (
+		<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'} />
+	),
 };
 
-LinksStack.path = '';
-
-const SettingsStack = createStackNavigator(
+const ProfileStack = createStackNavigator(
 	{
-		Settings: SettingsScreen,
+		Profile: ProfileScreen,
 	},
-	config
 );
 
-SettingsStack.navigationOptions = {
-	tabBarLabel: 'Settings',
-	// tabBarIcon: ({ focused }) => (
-	// 	<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
-	// ),
+ProfileStack.navigationOptions = {
+	tabBarLabel: 'Profile',
+	tabBarIcon: ({ focused }) => (
+		<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
+	),
 };
-
-SettingsStack.path = '';
 
 const tabNavigator = createBottomTabNavigator(
 	{
 		HomeStack,
-		LinksStack,
-		SettingsStack,
+		UploadStack,
+		ProfileStack,
 	},
 	{
 		initialRouteName: 'HomeStack',
 	}
 );
-
-tabNavigator.path = '';
 
 export default tabNavigator;

@@ -1,10 +1,15 @@
 import React from 'react';
-import { View } from 'react-native'
-
-import Colors from '../constants/Colors';
+import { View, Text } from 'react-native'
 
 export default function TabBarIcon(props) {
 	return (
-		<View></View>
+		<View>
+			{props.focused ?
+				(
+					<Text>focused</Text>
+				) : (
+					<Text>not focused</Text>
+				)}
+		</View>
 	);
 }

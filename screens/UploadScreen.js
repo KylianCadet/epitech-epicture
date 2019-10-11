@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import ClickableButtonLine from '../components/ClickableButtonLine'
 
-export default function LinksScreen() {
+export default function UploadScreen() {
 	return (
 		<ScrollView style={styles.container}>
 			<ClickableButtonLine text='allah' />
@@ -18,18 +18,28 @@ export default function LinksScreen() {
 			<ClickableButtonLine text='miséricordieu' />
 			<ClickableButtonLine text='lila' />
 			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
+			<ClickableButtonLine text='lila' />
 		</ScrollView>
 	);
 }
 
-LinksScreen.navigationOptions = {
-	title: 'Links',
+UploadScreen.navigationOptions = {
+	title: 'Upload',
 };
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingTop: 15,
 		backgroundColor: '#fff',
 	},
 });
