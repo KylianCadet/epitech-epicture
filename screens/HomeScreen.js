@@ -1,6 +1,7 @@
 // import * as WebBrowser from 'expo-web-browser';
 import HomeImg from '../components/HomeImg'
 import React from 'react';
+import { connect } from 'react-redux'
 import {
 	Image,
 	Platform,
@@ -67,12 +68,14 @@ class HomeScreen extends React.Component {
 			finishLoading: false
 		}
 	}
-	render() {
+	componentDidMount() {
 		getRequest('https://api.imgur.com/3/gallery/top/').then((data) => {
 			this.setState({ finishLoading: true, data: data.data })
 			// var image_array = data.data[0].images
 			// console.log(image_array)
 		})
+	}
+	render() {
 		return (
 			<SafeAreaView style={styles.container}>
 				<FlatList
@@ -85,11 +88,21 @@ class HomeScreen extends React.Component {
 	}
 }
 
+
+function mapStateToProps(state) {
+	return {
+		accountInfo: state.accountInfo,
+		isLogged: state.isLogged,
+		token: state.token,
+		username: state.username
+	}
+}
+
 HomeScreen.navigationOptions = {
 	header: null,
 };
 
-export default HomeScreen
+export default connect(mapStateToProps)(HomeScreen)
 
 const styles = StyleSheet.create({
 	container: {

@@ -2,6 +2,9 @@ import React from 'react'
 import { View, StyleSheet, Button } from 'react-native'
 
 class FitButton extends React.Component {
+	constructor(props) {
+		super(props)
+	}
 	render() {
 		return (
 			<View style={[styles.fitButton, this.props.style]}>

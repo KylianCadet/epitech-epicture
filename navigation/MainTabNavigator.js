@@ -7,14 +7,12 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import LoginWebView from '../screens/LoginWebView'
 
 
 const HomeStack = createStackNavigator({
 	Home: {
 		screen: HomeScreen,
-	},
-	Other: {
-		screen: ProfileScreen,
 	},
 });
 
@@ -41,11 +39,14 @@ UploadStack.navigationOptions = {
 	),
 };
 
-const ProfileStack = createStackNavigator(
-	{
-		Profile: ProfileScreen,
+const ProfileStack = createStackNavigator({
+	Profile: {
+		screen: ProfileScreen,
 	},
-);
+	// LoginWebView: {
+	// 	screen: LoginWebView,
+	// },
+});
 
 ProfileStack.navigationOptions = {
 	tabBarLabel: 'Profile',
