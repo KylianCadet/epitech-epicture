@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 import FixButton from './FitButton'
+import Color from '../constants/Colors'
 
 class NotLoginView extends React.Component {
 	constructor(props) {
@@ -13,7 +14,7 @@ class NotLoginView extends React.Component {
 					<Image source={require('../assets/images/unconnected.png')} style={{ flex: 1, width: null, height: null, resizeMode: 'contain', marginBottom: 'auto' }} />
 				</View>
 				<View style={{ flex: 2, alignItems: 'center' }}>
-					<Text>YOU ARE NOT LOGIN</Text>
+					<Text style={{color: 'white'}}>YOU ARE NOT LOGIN</Text>
 				</View>
 				<View style={{ flex: 1 }}>
 					<FixButton title="Login with your Imgur account" onPress={() => this.props.navigation.navigate('LoginWebView')} />
@@ -28,6 +29,6 @@ export default NotLoginView
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
+		backgroundColor: Color.backgroundColor,
 	},
 });

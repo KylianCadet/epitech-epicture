@@ -4,13 +4,13 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 export default function UploadScreen() {
 	return (
 		<ScrollView style={styles.container}>
-			<Text>Upload screen</Text>
+			<Text>Search screen</Text>
 		</ScrollView>
 	);
 }
 
 UploadScreen.navigationOptions = {
-	title: 'Upload',
+	title: 'Search',
 };
 
 const styles = StyleSheet.create({

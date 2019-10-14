@@ -1,12 +1,12 @@
 import React from 'react'
+import AsyncStorage from '@react-native-community/async-storage';
 import { WebView } from 'react-native-webview'
 import { connect } from 'react-redux'
 import { dispatch_function } from '../redux/reducers/index'
+import ClientID from '../constants/ClientID'
 
 
-const client_id = '38c6850ce6bd17c'
-const client_secret = 'b4db65e6d74818d232d777d09988bc419e8519d1'
-const uri = 'https://api.imgur.com/oauth2/authorize?client_id=' + client_id + '&response_type=token'
+const uri = 'https://api.imgur.com/oauth2/authorize?client_id=' + ClientID.client_id + '&response_type=token'
 
 
 function parse_query(queryString) {
@@ -68,6 +68,11 @@ function mapDispatchToProps(dispatch) {
 			dispatch(dispatch_function('LOGIN'))
 			dispatch(dispatch_function('TOKEN', name['access_token']))
 			dispatch(dispatch_function('USERNAME', name['account_username']))
+			AsyncStorage.setItem('isLogged', 'true')
+			AsyncStorage.setItem('token', name['access_token'])
+			AsyncStorage.setItem('username', name['account_username'])
+			console.log("REFRESH TOKEN : " + name['refresh_token'])
+			AsyncStorage.setItem('refresh_token', name['refresh_token'])
 		},
 	}
 }

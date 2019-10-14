@@ -6,8 +6,8 @@ class TextButton extends React.Component {
 	render() {
 		return (
 			<View style={[this.props.style, { }]}>
-				<Touchable onPress={this.props.onPress} style={{ borderWidth: 10, borderColor: '#fff' }}>
-					<Text style={{}}>{this.props.text}</Text>
+				<Touchable onPress={this.props.onPress} style={{ borderWidth: 10, borderColor: this.props.style.backgroundColor }}>
+					<Text style={this.props.textStyle}>{this.props.text}</Text>
 				</Touchable>
 			</View >
 		)

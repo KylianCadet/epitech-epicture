@@ -50,6 +50,13 @@ function getAccountBase(username) {
 	return fetchAuthorization(uri)
 }
 
+function getEmptyDataBlock() {
+	return ({
+		id: 'empty',
+		data: <Text style={{ color: 'white', alignSelf:'center' }}>Nothing to display here</Text>
+	})
+}
+
 class ProfileScreen extends React.Component {
 	constructor(props) {
 		super(props)
@@ -59,6 +66,9 @@ class ProfileScreen extends React.Component {
 		}
 	}
 	setData(newData) {
+		if (newData.length == 0) {
+			newData[0] = getEmptyDataBlock()
+		}
 		this.setState({
 			data: [this.state.data[0], this.state.data[1]]
 		}, () => {
@@ -73,6 +83,23 @@ class ProfileScreen extends React.Component {
 			const allData = data.data
 			this.setData(allData)
 		})
+	}
+	getFavorites() {
+		const uri = 'https://api.imgur.com/3/account/' + this.props.username + '/favorites/'
+		fetchBearer(uri, this.props.token).then((data) => {
+			const allData = data.data
+			this.setData(allData)
+		})
+	}
+	getFollowing() {
+		// const uri = 'https://api.imgur.com/3/tags'
+		// fetchBearer(uri , this.props.token).then((data) => {
+		// 	for (var i = 0; i != data.data.galleries.length; i++) {
+		// 		console.log(data.data.galleries[i])
+		// 	}
+		// 	const allData = data.data
+		// 	this.setData(allData)
+		// })
 	}
 	Banner(username, cover, avatar, bio) {
 		return (
@@ -93,8 +120,8 @@ class ProfileScreen extends React.Component {
 		return (
 			<View style={{ flex: 1, backgroundColor: 'white', flexDirection: 'row' }}>
 				<ClickableButtonLine text='Posts' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }} onPress={this.getPosts.bind(this)}></ClickableButtonLine>
-				<ClickableButtonLine text='Favorites' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
-				<ClickableButtonLine text='Following' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
+				<ClickableButtonLine text='Favorites' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }} onPress={this.getFavorites.bind(this)}></ClickableButtonLine>
+				<ClickableButtonLine text='Following' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }} onPress={this.getFollowing.bind(this)}></ClickableButtonLine>
 				<ClickableButtonLine text='Comments' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
 			</View>
 		)

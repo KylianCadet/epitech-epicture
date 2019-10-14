@@ -8,7 +8,23 @@ import HomeScreen from '../screens/HomeScreen';
 import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginWebView from '../screens/LoginWebView'
+import SearchView from '../screens/SearchScreen'
 
+
+const SearchStack = createStackNavigator({
+	Search: {
+		screen: SearchView,
+	},
+});
+
+SearchStack.navigationOptions = {
+	tabBarLabel: 'Search',
+	tabBarIcon: ({ focused }) => (
+		<TabBarIcon focused={focused}
+		focusedImage={require('../assets/images/glassIconFocused.png')}
+		idleImage={require('../assets/images/glassIcon.png')} />
+	),
+};
 
 const HomeStack = createStackNavigator({
 	Home: {
@@ -44,9 +60,9 @@ const ProfileStack = createStackNavigator({
 	Profile: {
 		screen: ProfileScreen,
 	},
-	// LoginWebView: {
-	// 	screen: LoginWebView,
-	// },
+	LoginWebView: {
+		screen: LoginWebView,
+	},
 });
 
 ProfileStack.navigationOptions = {
@@ -61,6 +77,7 @@ ProfileStack.navigationOptions = {
 const tabNavigator = createBottomTabNavigator(
 	{
 		HomeStack,
+		SearchStack,
 		UploadStack,
 		ProfileStack,
 	},
