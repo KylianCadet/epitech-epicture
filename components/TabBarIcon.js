@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native'
+import { View, Text, Image } from 'react-native'
 
 export default function TabBarIcon(props) {
+
 	return (
-		<View>
+		<View style={{ justifyContent: 'center' }}>
 			{props.focused ?
 				(
-					<Text>focused</Text>
+					<Image source={props.focusedImage} style={{ width: 40, resizeMode: 'contain', height: 20 }}></Image>
 				) : (
-					<Text>not focused</Text>
+					<Image source={props.idleImage} style={{ width: 40, resizeMode: 'contain', height: 20 }}></Image>
 				)}
 		</View>
 	);

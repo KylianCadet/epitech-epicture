@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, Button, ImageBackground, SafeAreaView } from 'react-native'
+import { View, StyleSheet, Text, Image, Button, ImageBackground, SafeAreaView, Dimensions } from 'react-native'
 import { connect } from 'react-redux'
 import { dispatch_function } from '../redux/reducers/index'
 import { ScrollView, FlatList } from 'react-native-gesture-handler';
@@ -10,24 +10,33 @@ import NotLoginView from '../components/NotLoginView.js'
 
 const client_id = '38c6850ce6bd17c'
 
-function Item({ val, data }) {
-	if (!val) {
+function Item({ link, data }) {
+	if (!link) {
 		return (
-			<View style={styles.container}>
+			<View style={styles.itemContainer}>
 				{data}
 			</View>
 		)
 	}
 	return (
-		<View>
-			<Text>{val}</Text>
+		<View style={styles.itemContainer}>
+			<Image source={{ uri: link }} style={{ flex: 1, borderColor: '#595457', aspectRatio: 1, resizeMode: 'contain' }}></Image>
 		</View>
 	)
 }
 
+function fetchBearer(uri, token) {
+	return fetch(uri, {
+		headers: {
+			'Authorization': 'Bearer ' + token
+		}
+	})
+		.then((response) => response.json())
+		.catch((error) => console.error(error))
+}
 
-function getAccountBase(username) {
-	return fetch("https://api.imgur.com/3/account/" + username, {
+function fetchAuthorization(uri) {
+	return fetch(uri, {
 		headers: {
 			'Authorization': 'Client-ID ' + client_id
 		}
@@ -35,39 +44,60 @@ function getAccountBase(username) {
 		.then((response) => response.json())
 		.catch((error) => console.error(error))
 }
-function Banner(username, cover, avatar, bio) {
-	return (
-		<View style={{ flex: 1, backgroundColor: 'white' }}>
-			<ImageBackground source={{ uri: cover }} style={{ flex: 1, width: null, height: 200 }}>
-				<View style={{ flexDirection: 'row', flex: 1 }}>
-					<Text style={{ flex: 1, marginBottom: 'auto', marginRight: 'auto', paddingTop: 20, paddingLeft: 20, fontSize: 20, color: 'white' }}>{username}</Text>
-					<Image source={{ uri: avatar }} style={{ height: 100, width: 100, marginBottom: 'auto', paddingTop: 10 }} />
-					<FitButton title='...' style={{ marginBottom: 'auto' }}></FitButton>
-				</View>
-				<Text style={{ flex: 1, paddingTop: 20, paddingLeft: 20, color: 'white' }}>{bio}</Text>
-			</ImageBackground>
-		</View >
-	)
-}
 
-function Pannel() {
-	return (
-		<View style={{ flex: 1, backgroundColor: 'white' }}>
-			<Text>PANNEL</Text>
-		</View>
-	)
+function getAccountBase(username) {
+	const uri = "https://api.imgur.com/3/account/" + username
+	return fetchAuthorization(uri)
 }
 
 class ProfileScreen extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			data: [
-				{ key: 'banner', data: null, val: null },
-				{ key: 'pannel', data: null, val: null },
-			],
+			data: [{ id: '0' }, { id: '1' }],
 			stickyHeaderIndices: [1],
 		}
+	}
+	setData(newData) {
+		this.setState({
+			data: [this.state.data[0], this.state.data[1]]
+		}, () => {
+			this.setState({
+				data: this.state.data.concat(newData)
+			})
+		})
+	}
+	getPosts() {
+		const uri = 'https://api.imgur.com/3/account/' + this.props.username + '/images'
+		fetchBearer(uri, this.props.token).then((data) => {
+			const allData = data.data
+			this.setData(allData)
+		})
+	}
+	Banner(username, cover, avatar, bio) {
+		return (
+			<View style={{ flex: 1, backgroundColor: 'white' }}>
+				<ImageBackground source={{ uri: cover }} style={{ flex: 1, width: null, height: 200 }}>
+					<View style={{ flexDirection: 'row', flex: 1 }}>
+						<Text style={{ flex: 1, marginBottom: 'auto', marginRight: 'auto', paddingTop: 20, paddingLeft: 20, fontSize: 20, color: 'white' }}>{username}</Text>
+						<Image source={{ uri: avatar }} style={{ height: 100, width: 100, marginBottom: 'auto', paddingTop: 10 }} />
+						<FitButton title='...' style={{ marginBottom: 'auto' }}></FitButton>
+					</View>
+					<Text style={{ flex: 1, paddingTop: 20, paddingLeft: 20, color: 'white' }}>{bio}</Text>
+				</ImageBackground>
+			</View >
+		)
+	}
+
+	Pannel() {
+		return (
+			<View style={{ flex: 1, backgroundColor: 'white', flexDirection: 'row' }}>
+				<ClickableButtonLine text='Posts' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }} onPress={this.getPosts.bind(this)}></ClickableButtonLine>
+				<ClickableButtonLine text='Favorites' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
+				<ClickableButtonLine text='Following' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
+				<ClickableButtonLine text='Comments' style={{ backgroundColor: '#262525' }} textStyle={{ color: 'white' }}></ClickableButtonLine>
+			</View>
+		)
 	}
 	componentDidMount() {
 		if (!this.props.isLogged)
@@ -78,23 +108,24 @@ class ProfileScreen extends React.Component {
 			const bio = data.data.bio
 			this.setState({
 				data: [
-					{ key: 'banner', data: Banner(this.props.username, cover, avatar, bio), val: null },
-					{ key: 'pannel', data: Pannel(), val: null },
-					{ key: 'a', data: null, val: '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nkek' }
+					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio), val: null },
+					{ id: 'pannel', data: this.Pannel(), val: null },
 				],
 			})
+			this.getPosts()
 		})
 	}
 
 	_logged() {
 		if (this.props.isLogged) {
 			return (
-				<SafeAreaView style={styles.container}>
+				<SafeAreaView style={[styles.container]}>
 					<FlatList
+						style={{ flex: 1, backgroundColor: '#3a3739' }}
 						data={this.state.data}
 						extraData={this.state.data}
-						renderItem={({ item }) => <Item val={item.val} data={item.data} />}
-						keyExtractor={item => item.key}
+						renderItem={({ item }) => <Item link={item.link} data={item.data} />}
+						keyExtractor={item => item.id}
 						stickyHeaderIndices={this.state.stickyHeaderIndices}>
 					</FlatList >
 				</SafeAreaView>
@@ -110,7 +141,7 @@ class ProfileScreen extends React.Component {
 	}
 	render() {
 		return (
-			<View style={styles.container}>
+			<View style={[styles.container]}>
 				{this._logged()}
 				{this._guest()}
 			</View>
@@ -141,4 +172,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fff',
 	},
+	itemContainer: {
+		flex: 1,
+		backgroundColor: '#3a3739'
+	}
 });

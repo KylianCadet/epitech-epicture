@@ -19,10 +19,9 @@ const HomeStack = createStackNavigator({
 HomeStack.navigationOptions = {
 	tabBarLabel: 'Home',
 	tabBarIcon: ({ focused }) => (
-		<TabBarIcon
-			focused={focused}
-			name={Platform.OS === 'ios' ? `ios-information-circle${focused ? '' : '-outline'}` : 'md-information-circle'}
-		/>
+		<TabBarIcon focused={focused}
+		focusedImage={require('../assets/images/homeIconFocused.png')}
+		idleImage={require('../assets/images/homeIcon.png')} />
 	),
 };
 
@@ -35,7 +34,9 @@ const UploadStack = createStackNavigator(
 UploadStack.navigationOptions = {
 	tabBarLabel: 'Upload',
 	tabBarIcon: ({ focused }) => (
-		<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'} />
+		<TabBarIcon focused={focused}
+		focusedImage={require('../assets/images/cameraIconFocused.png')}
+		idleImage={require('../assets/images/cameraIcon.png')} />
 	),
 };
 
@@ -51,7 +52,9 @@ const ProfileStack = createStackNavigator({
 ProfileStack.navigationOptions = {
 	tabBarLabel: 'Profile',
 	tabBarIcon: ({ focused }) => (
-		<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
+		<TabBarIcon focused={focused}
+			focusedImage={require('../assets/images/profileIconFocused.png')}
+			idleImage={require('../assets/images/profileIcon.png')} />
 	),
 };
 
@@ -63,7 +66,14 @@ const tabNavigator = createBottomTabNavigator(
 	},
 	{
 		initialRouteName: 'HomeStack',
+		tabBarOptions: {
+			showLabel: false,
+			style: {
+				backgroundColor: '#262525'
+			}
+		}
 	}
 );
+
 
 export default tabNavigator;
