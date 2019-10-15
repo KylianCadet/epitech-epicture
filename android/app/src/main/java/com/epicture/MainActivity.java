@@ -1,4 +1,4 @@
-package com.test_react;
+package com.epicture;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,6 +10,6 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "test_react";
+    return "epicture";
   }
 }

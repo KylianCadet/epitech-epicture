@@ -36,6 +36,10 @@ target 'test_react' do
 
   pod 'react-native-webview', :path => '../node_modules/react-native-webview'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
   target 'test_reactTests' do
     inherit! :search_paths
     # Pods for testing
