@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs'
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
+import PostScreen from '../screens/PostScreen';
 import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginWebView from '../screens/LoginWebView'
@@ -29,6 +30,9 @@ SearchStack.navigationOptions = {
 const HomeStack = createStackNavigator({
 	Home: {
 		screen: HomeScreen,
+	},
+	Post: {
+		screen: PostScreen,
 	},
 });
 
