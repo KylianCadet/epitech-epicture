@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image, ImageBackground, SafeAreaView, TouchableHighlight } from 'react-native'
 import { connect } from 'react-redux'
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import ClickableButtonLine from '../components/ClickableButtonLine'
 import FitButton from '../components/FitButton'
 import NotLoginView from '../components/NotLoginView.js'
@@ -33,7 +33,7 @@ function Item({ link, data, comment }) {
 		const upvote = comment.ups - comment.downs < 0 ? 0 : comment.ups - comment.downs
 		return (
 			<View>
-				<TouchableHighlight onPress={() => console.log(comment.image_id)}>
+				<TouchableOpacity onPress={() => console.log(comment.image_id)}>
 					<View style={{ flexDirection: 'row' }}>
 						<Image source={{ uri: comment.image_link }} style={{ marginBottom: 10, marginTop: 10, marginLeft: 10, width: 60, height: 60, resizeMode: 'contain' }}></Image>
 						<View>
@@ -45,7 +45,7 @@ function Item({ link, data, comment }) {
 							</View>
 						</View>
 					</View>
-				</TouchableHighlight>
+				</TouchableOpacity>
 			</View>
 		)
 	}
@@ -180,7 +180,7 @@ class ProfileScreen extends React.Component {
 
 	_logged() {
 		if (this.props.isLogged) {
-			if (this.state.data.length == 0)
+			if (this.state.data[0].id == '0')
 				this._init()
 			return (
 				<SafeAreaView style={[styles.container]}>
