@@ -19,19 +19,6 @@ export default class TouchableImage extends React.Component {
 	}
 }
 
-export class SimpleImage extends React.Component {
-	render() {
-		return (
-			<View style={styles.container}>
-				<Image
-					style={this.props.style}
-					source={{ uri: this.props.source }}
-				/>
-			</View>
-		)
-	}
-}
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

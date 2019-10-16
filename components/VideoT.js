@@ -22,21 +22,6 @@ export default class TouchableVideo extends React.Component {
 	}
 }
 
-export class SimpleVideo extends React.Component {
-	render() {
-		return (
-			<View style={styles.container}>
-				<Video
-					style={this.props.style}
-					source={{ uri: this.props.source }}
-					repeat={true}
-					resizeMode={"cover"}
-				/>
-			</View>
-		)
-	}
-}
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

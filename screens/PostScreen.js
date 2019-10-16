@@ -1,9 +1,7 @@
 import React from 'react';
 import TouchableImage from '../components/ImageT'
-import SimpleImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
-import SimpleVideo from '../components/VideoT'
-import { getRequest } from '../screens/HomeScreen'
+import { getRequest, numberWithCommas } from '../screens/HomeScreen'
 import Video from 'react-native-video';
 import {
 	ScrollView,
@@ -16,7 +14,63 @@ import {
 	Image,
 } from 'react-native';
 
-var titleStatus = false
+function DisplayGifComment({ gifLink, item, dim, author, date }) {
+	var platform = item.platform.charAt(0).toUpperCase() + item.platform.slice(1);
+	var id = gifLink.substr(gifLink.length - 11).substr(0, gifLink.length - 4)
+	id = id.substr(0, id.length - 4)
+	return (
+		<View style={[styles.comment, { marginHorizontal: dim.box }]}>
+			<View style={{ flexDirection: 'row' }}>
+				<Text style={styles.nickname}>
+					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
+					<Text style={{}}> via </Text>
+					<Text style={{ color: '#7789ff' }}>{platform}</Text>
+				</Text>
+				<Text style={styles.nickname}>{numberWithCommas(item.points)} pts</Text>
+				<Text style={styles.nickname}>{date}</Text>
+			</View>
+			<Image
+				style={[styles.img, {
+					width: dim.width - 30,
+					height: 300,
+					marginTop: 5,
+					marginBottom: 15,
+					marginHorizontal: 15
+				}]}
+				source={{ uri: gifLink }}
+			/>
+		</View>
+	);
+}
+
+function DisplayTextComment({ item, dim, author, date }) {
+	var platform = item.platform.charAt(0).toUpperCase() + item.platform.slice(1);
+	return (
+		<View style={[styles.comment, { marginHorizontal: dim.box }]}>
+			<View style={{ flexDirection: 'row' }}>
+				<Text style={styles.nickname}>
+					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
+					<Text style={{}}> via </Text>
+					<Text style={{ color: '#7789ff' }}>{platform}</Text>
+				</Text>
+				<Text style={styles.nickname}>{item.points} pts</Text>
+				<Text style={styles.nickname}>{date}</Text>
+			</View>
+			<Text style={styles.text}>{item.comment}</Text>
+		</View>
+	);
+}
+
+function setDisplayTime(datetime) {
+	const time = new Date(datetime * 1000)
+	var date = time.toString().split(' ')
+	date.pop()
+	date.pop()
+	date.pop()
+	date.shift()
+	date = date.join(' ')
+	return (date)
+}
 
 function urlify(text) {
 	var urlRegex = /(http?:\/\/[^\s]+ )/g;
@@ -25,100 +79,91 @@ function urlify(text) {
 	})
 }
 
-function Item({ item, title }) {
-	if (item.id === '0')
-		return (
-			<View>
-				<Text style={styles.title}>{title}</Text>
-			</View>
-		);
-	if (typeof item === 'undefined' || item === null) { return null }
+function DisplayComment({ item, dim }) {
+	var date = setDisplayTime(item.datetime)
+	var author = item.author
+	if (author.length > 15)
+		author = author.substr(0, 15)
+	var gifLink = urlify(item.comment)
+	if (gifLink != 'undefined' && gifLink.substr(0, 4) === 'http' && (
+		gifLink.substr(gifLink.length - 4) === 'gifv' ||
+		gifLink.substr(gifLink.length - 4) === '.gif' ||
+		gifLink.substr(gifLink.length - 4) === '.png' ||
+		gifLink.substr(gifLink.length - 4) === '.jpg')) {
+		if (gifLink.substr(gifLink.length - 4) === 'gifv')
+			gifLink = gifLink.substr(0, gifLink.length - 1)
+		// console.log(author + ' : ' + gifLink)
+		return (DisplayGifComment({ gifLink, item, dim, author, date }))
+	} else {
+		return (DisplayTextComment({ item, dim, author, date }))
+	}
+}
+
+function DisplayTitle(title) {
+	return (
+		<View>
+			<Text style={styles.title}>{title}</Text>
+		</View>
+	);
+}
+
+function DisplayVideo({ item, dim }) {
+	return (
+		<Video
+			style={[styles.img, { width: dim.width, height: dim.height }]}
+			source={{ uri: item.link }}
+			resizeMode={"cover"}
+			repeat={true}
+		/>
+	);
+}
+
+function DisplayImage({ item, dim }) {
+	return (
+		<Image
+			style={[styles.img, { width: dim.width, height: dim.height }]}
+			source={{ uri: item.link }}
+		/>
+	);
+}
+
+function DisplayMedia({ item, dim }) {
+	return (
+		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
+			{
+				item.type === 'video/mp4'
+					?
+					(DisplayVideo({ item, dim }))
+					:
+					(DisplayImage({ item, dim }))
+			}
+		</View>
+	);
+}
+
+function setDimensions(item) {
 	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	if (item.comment) {
-		var author = item.author
-		var platform = item.platform.charAt(0).toUpperCase() + item.platform.slice(1);
-		const comment_time = new Date(item.datetime * 1000)
-		var display_time = comment_time.toString().split(' ')
-		display_time.pop()
-		display_time.pop()
-		display_time.pop()
-		display_time.shift()
-		display_time = display_time.join(' ')
-		if (author.length > 15)
-			author = author.substr(0, 15)
-		var mygif = urlify(item.comment)
-		if (mygif != 'undefined' && mygif.substr(0, 4) === 'http' && (
-			mygif.substr(mygif.length - 4) === 'gifv' ||
-			mygif.substr(mygif.length - 4) === '.gif' ||
-			mygif.substr(mygif.length - 4) === '.png' ||
-			mygif.substr(mygif.length - 4) === '.jpg'
-		)) {
-			if (mygif.substr(mygif.length - 4) === 'gifv') {
-				mygif = mygif.substr(0, mygif.length - 1)
-			}
-			// console.log(author + ' : ' + mygif)
-			return (
-				<View style={[styles.comment, { marginHorizontal: boxwidth }]}>
-					<View style={{ flexDirection: 'row' }}>
-						<Text style={styles.nickname}>
-							<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
-							<Text style={{}}> via </Text>
-							<Text style={{ color: '#7789ff' }}>{platform}</Text>
-						</Text>
-						<Text style={styles.nickname}>{item.points} pts</Text>
-						<Text style={styles.nickname}>{display_time}</Text>
-					</View>
-					<Image
-						style={[styles.img, {
-							width: newwidth - 30,
-							height: 300,
-							marginTop: 5,
-							marginBottom: 15,
-							marginHorizontal: 15
-						}]}
-						source={{ uri: mygif }}
-					/>
-				</View>
-			);
-		} else {
-			return (
-				<View style={[styles.comment, { marginHorizontal: boxwidth }]}>
-					<View style={{ flexDirection: 'row' }}>
-						<Text style={styles.nickname}>
-							<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
-							<Text style={{}}> via </Text>
-							<Text style={{ color: '#7789ff' }}>{platform}</Text>
-						</Text>
-						<Text style={styles.nickname}>{item.points} pts</Text>
-						<Text style={styles.nickname}>{display_time}</Text>
-					</View>
-					<Text style={styles.text}>{item.comment}</Text>
-				</View>
-			);
-		}
-	}
-	if (item.type === 'video/mp4') {
-		return (
-			<View elevation={7.5} style={[styles.item, { marginHorizontal: boxwidth }]}>
-				<Video
-					style={[styles.img, { width: newwidth, height: newheight }]}
-					source={{ uri: item.link }}
-					resizeMode={"cover"}
-					repeat={true}
-				/>
-			</View>
-		);
-	} else {
-		return (
-			<View elevation={7.5} style={[styles.item, { marginHorizontal: boxwidth }]}>
-				<Image
-					style={[styles.img, { width: newwidth, height: newheight }]}
-					source={{ uri: item.link }}
-				/>
-			</View>
-		);
+	return ({ width: newwidth, height: newheight, box: boxwidth })
+}
+
+function Item({ item, title }) {
+	if (item.id === '0')
+		return (DisplayTitle(title))
+	if (typeof item === 'undefined' || item === null) { return null }
+	var dim = setDimensions(item)
+	if (item.comment)
+		return (DisplayComment({ item, dim }))
+	else if (
+		item.type === 'video/mp4' ||
+		item.type === 'image/png' ||
+		item.type === 'image/gif' ||
+		item.type === 'image/jpeg')
+		return (DisplayMedia({ item, dim }))
+	else {
+		console.log('Unknow item : ' + item)
+		return (null)
 	}
 }
 
@@ -175,7 +220,8 @@ PostScreen.navigationOptions = {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#2E2F34',
+		backgroundColor: '#141518',
+		// backgroundColor: '#2E2F34',
 	},
 	img: {
 		borderRadius: 10,
@@ -194,7 +240,8 @@ const styles = StyleSheet.create({
 	},
 	comment: {
 		borderRadius: 10,
-		backgroundColor: '#424B54',
+		// backgroundColor: '#424B54',
+		backgroundColor: '#2c2f34',
 		marginVertical: 10,
 		shadowColor: '#000000',
 		shadowOffset: {
