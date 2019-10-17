@@ -1,81 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, ImageBackground, SafeAreaView, TouchableHighlight } from 'react-native'
+import { View, StyleSheet, Text, Image, ImageBackground, SafeAreaView, Button } from 'react-native'
 import { connect } from 'react-redux'
-import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import ClickableButtonLine from '../components/ClickableButtonLine'
 import FitButton from '../components/FitButton'
 import NotLoginView from '../components/NotLoginView.js'
+import { fetchAuthorization, fetchBearer, getAccountBase } from '../components/customFetch'
+import { Item } from '../components/ProfileItem'
 
-
-const client_id = '38c6850ce6bd17c'
-
-function Item({ link, data, comment }) {
-	if (data) {
-		return (
-			<View style={styles.itemContainer}>
-				{data}
-			</View>
-		)
-	}
-	if (link) {
-		return (
-			<View style={styles.itemContainer}>
-				<Image source={{ uri: link }} style={{ flex: 1, aspectRatio: 1, resizeMode: 'contain' }}></Image>
-			</View>
-		)
-	}
-	if (comment) {
-		const comment_time = new Date(comment.datetime * 1000)
-		var display_time = comment_time.toString().split(' ')
-		display_time.pop()
-		display_time.pop()
-		display_time = display_time.join(' ')
-		const upvote = comment.ups - comment.downs < 0 ? 0 : comment.ups - comment.downs
-		return (
-			<View>
-				<TouchableOpacity onPress={() => console.log(comment.image_id)}>
-					<View style={{ flexDirection: 'row' }}>
-						<Image source={{ uri: comment.image_link }} style={{ marginBottom: 10, marginTop: 10, marginLeft: 10, width: 60, height: 60, resizeMode: 'contain' }}></Image>
-						<View>
-							<Text style={{ color: 'white', marginLeft: 10, marginTop: 20 }}>{comment.comment}</Text>
-							<Text style={{ fontSize: 10, color: 'grey', marginLeft: 10 }}>{display_time}</Text>
-							<View style={{ flexDirection: 'row' }}>
-								<Image source={require('../assets/images/arrowIcon.png')} style={{ height: 7, width: 7, marginLeft: 10, marginTop: 5 }}></Image>
-								<Text style={{ fontSize: 10, color: 'grey', marginLeft: 5 }}>{upvote}</Text>
-							</View>
-						</View>
-					</View>
-				</TouchableOpacity>
-			</View>
-		)
-	}
-	return (<View></View>)
-}
-
-function fetchBearer(uri, token) {
-	return fetch(uri, {
-		headers: {
-			'Authorization': 'Bearer ' + token
-		}
-	})
-		.then((response) => response.json())
-		.catch((error) => console.error(error))
-}
-
-function fetchAuthorization(uri) {
-	return fetch(uri, {
-		headers: {
-			'Authorization': 'Client-ID ' + client_id
-		}
-	})
-		.then((response) => response.json())
-		.catch((error) => console.error(error))
-}
-
-function getAccountBase(username) {
-	const uri = "https://api.imgur.com/3/account/" + username
-	return fetchAuthorization(uri)
-}
 
 function getEmptyDataBlock() {
 	return ({
@@ -104,17 +36,27 @@ class ProfileScreen extends React.Component {
 			})
 		})
 	}
-	getPosts() {
-		const uri = 'https://api.imgur.com/3/account/' + this.props.username + '/images'
-		fetchBearer(uri, this.props.token).then((data) => {
-			const allData = data.data
-			this.setData(allData)
-		})
+	async getPosts() {
+		const uri = 'https://api.imgur.com/3/account/me/items/newest'
+		const data = await fetchBearer(uri, this.props.token)
+		var allData = []
+		for (var i = 0; i != data.data.length; i++)
+			allData.push({
+				'id': data.data[i].id,
+				'image': data.data[i],
+			})
+		this.setData(allData)
 	}
 	getFavorites() {
 		const uri = 'https://api.imgur.com/3/account/' + this.props.username + '/favorites/'
 		fetchBearer(uri, this.props.token).then((data) => {
-			const allData = data.data
+			var allData = []
+			for (var i = 0; i != data.data.length; i++)
+				allData.push({
+					'id': data.data[i].id,
+					'image': data.data[i],
+				})
+			console.log(allData[0].image.images[0])
 			this.setData(allData)
 		})
 	}
@@ -179,6 +121,7 @@ class ProfileScreen extends React.Component {
 	}
 
 	_logged() {
+		const {navigate} = this.props.navigation
 		if (this.props.isLogged) {
 			if (this.state.data[0].id == '0')
 				this._init()
@@ -188,10 +131,10 @@ class ProfileScreen extends React.Component {
 						style={{ flex: 1, backgroundColor: '#3a3739' }}
 						data={this.state.data}
 						extraData={this.state.data}
-						renderItem={({ item }) => <Item link={item.link} data={item.data} comment={item.comment} />}
+						renderItem={({ item }) => <Item image={item.image} data={item.data} comment={item.comment} navigate={navigate} />}
 						keyExtractor={item => item.id}
 						stickyHeaderIndices={this.state.stickyHeaderIndices}>
-					</FlatList >
+					</FlatList>
 				</SafeAreaView>
 			)
 		}

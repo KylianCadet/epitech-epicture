@@ -22,8 +22,8 @@ SearchStack.navigationOptions = {
 	tabBarLabel: 'Search',
 	tabBarIcon: ({ focused }) => (
 		<TabBarIcon focused={focused}
-		focusedImage={require('../assets/images/glassIconFocused.png')}
-		idleImage={require('../assets/images/glassIcon.png')} />
+			focusedImage={require('../assets/images/glassIconFocused.png')}
+			idleImage={require('../assets/images/glassIcon.png')} />
 	),
 };
 
@@ -40,8 +40,8 @@ HomeStack.navigationOptions = {
 	tabBarLabel: 'Home',
 	tabBarIcon: ({ focused }) => (
 		<TabBarIcon focused={focused}
-		focusedImage={require('../assets/images/homeIconFocused.png')}
-		idleImage={require('../assets/images/homeIcon.png')} />
+			focusedImage={require('../assets/images/homeIconFocused.png')}
+			idleImage={require('../assets/images/homeIcon.png')} />
 	),
 };
 
@@ -55,8 +55,8 @@ UploadStack.navigationOptions = {
 	tabBarLabel: 'Upload',
 	tabBarIcon: ({ focused }) => (
 		<TabBarIcon focused={focused}
-		focusedImage={require('../assets/images/cameraIconFocused.png')}
-		idleImage={require('../assets/images/cameraIcon.png')} />
+			focusedImage={require('../assets/images/cameraIconFocused.png')}
+			idleImage={require('../assets/images/cameraIcon.png')} />
 	),
 };
 
@@ -66,6 +66,9 @@ const ProfileStack = createStackNavigator({
 	},
 	LoginWebView: {
 		screen: LoginWebView,
+	},
+	Post: {
+		screen: PostScreen,
 	},
 });
 
