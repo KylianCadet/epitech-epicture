@@ -51,7 +51,8 @@ class MainScreen extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		isLogged: state.isLogged
+		isLogged: state.isLogged,
+		authorizationHeader: state.authorizationHeader
 	}
 }
 
@@ -74,6 +75,7 @@ function mapDispatchToProps(dispatch) {
 					.then((response) => response.json())
 					.then((data) => {
 						dispatch(dispatch_function('TOKEN', data['access_token']))
+						dispatch(dispatch_function('AUTHORIZATION', data['access_token']))
 						AsyncStorage.setItem('refresh_token', data['refresh_token'])
 					})
 					.catch((error) => console.error(error))

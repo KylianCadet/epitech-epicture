@@ -68,6 +68,7 @@ function mapDispatchToProps(dispatch) {
 			dispatch(dispatch_function('LOGIN'))
 			dispatch(dispatch_function('TOKEN', name['access_token']))
 			dispatch(dispatch_function('USERNAME', name['account_username']))
+			dispatch(dispatch_function('AUTHORIZATION', name['access_token']))
 			AsyncStorage.setItem('isLogged', 'true')
 			AsyncStorage.setItem('token', name['access_token'])
 			AsyncStorage.setItem('username', name['account_username'])

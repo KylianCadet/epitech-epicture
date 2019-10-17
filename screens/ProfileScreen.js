@@ -22,6 +22,7 @@ class ProfileScreen extends React.Component {
 		this.state = {
 			data: [{ id: '0' }, { id: '1' }],
 			stickyHeaderIndices: [1],
+			isLoadding: true,
 		}
 	}
 	setData(newData) {
@@ -107,8 +108,8 @@ class ProfileScreen extends React.Component {
 			const bio = data.data.bio
 			this.setState({
 				data: [
-					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio), val: null },
-					{ id: 'pannel', data: this.Pannel(), val: null },
+					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio)},
+					{ id: 'pannel', data: this.Pannel() },
 				],
 			})
 			this.getPosts()
@@ -162,7 +163,8 @@ function mapStateToProps(state) {
 		accountInfo: state.accountInfo,
 		isLogged: state.isLogged,
 		token: state.token,
-		username: state.username
+		username: state.username,
+		authorizationHeader: state.authorizationHeader
 	}
 }
 

@@ -10,6 +10,8 @@ import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginWebView from '../screens/LoginWebView'
 import SearchView from '../screens/SearchScreen'
+import ImageView from '../screens/ImageScreen'
+import ImageScreen from '../screens/ImageScreen';
 
 
 const SearchStack = createStackNavigator({
@@ -69,6 +71,9 @@ const ProfileStack = createStackNavigator({
 	},
 	Post: {
 		screen: PostScreen,
+	},
+	Image: {
+		screen: ImageScreen,
 	},
 });
 

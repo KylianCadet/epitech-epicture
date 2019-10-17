@@ -108,19 +108,20 @@ function ImageFooter({ image, album }) {
 	return <ScoreFooter images_count={images_count}></ScoreFooter>
 }
 
-function ImageComponent({ image, navigate, dim, album }) {
+function ImageComponent({ image, navigate, album }) {
+	var dim = setDimensions(image)
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
 			<TouchableOpacity style={{ marginBottom: 20 }} onPress={() => {
 				if (album) {
-					console.log("BEFORE NAVIGATE")
 					navigate('Post', {
 						images: album.images,
 						album_id: album.id
 					})
-					console.log("pressed album " + album.id)
 				} else {
-					console.log("pressed image : " + image.id)
+					navigate('Image', {
+						image: image
+					})
 				}
 			}} >
 				<View>
@@ -150,13 +151,12 @@ function generateImage(elem, navigate) {
 	}
 	else
 		image = elem
-	var dim = setDimensions(image)
 	if (
 		image.type === 'video/mp4' ||
 		image.type === 'image/png' ||
 		image.type === 'image/gif' ||
 		image.type === 'image/jpeg')
-		return (<ImageComponent image={image} navigate={navigate} dim={dim} album={album}></ImageComponent>)
+		return (<ImageComponent image={image} navigate={navigate} album={album}></ImageComponent>)
 	else {
 		console.log('Unknow image : ' + image.type + ' ' + image.title)
 		return (null)
