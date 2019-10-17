@@ -1,7 +1,9 @@
 import React from 'react'
+import { setDisplayTime } from '../screens/PostScreen';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native'
 
 export function numberWithCommas(x) {
+	if (typeof x === 'undefined' || x === null) { return '0' }
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
@@ -38,6 +40,7 @@ export default class PageActionBar extends React.Component {
 		else
 			this.setState({ pressStatusLike: true });
 	}
+	s
 	render() {
 		return (
 			<View>
@@ -114,14 +117,20 @@ export default class PageActionBar extends React.Component {
 						<Image style={styles.iconS} source={this.props.skinComment} />
 						<Text style={styles.whiteS}>{numberWithCommas(this.props.countComment)}</Text>
 					</View> */}
-					<View style={{ flexDirection: 'row', flex: 1 }}>
+					<View style={{ flexDirection: 'row', flex: 8 }}>
+						{/* <Image style={styles.iconS} source={this.props.skinTrophee} /> */}
+						<Text style={styles.whiteS}>by </Text>
+						<Text style={[styles.whiteS, { fontWeight: 'bold', color: '#FFF' }]}>{this.props.username.substr(0, 12)}</Text>
+					</View>
+					<View style={{ flexDirection: 'row', flex: 8 }}>
 						{/* <Image style={styles.iconS} source={this.props.skinTrophee} /> */}
 						<Text style={styles.whiteS}>{numberWithCommas(this.props.countTrophee)} Points</Text>
 					</View>
-					<View style={{ flexDirection: 'row', flex: 1 }}>
-						{/* <Image style={styles.iconS} source={this.props.skinView} /> */}
+					<Text style={[styles.whiteS, { flex: 4.5 }]}>{setDisplayTime(this.props.datetime)}</Text>
+					{/* <View style={{ flexDirection: 'row', flex: 1 }}>
+						<Image style={styles.iconS} source={this.props.skinView} />
 						<Text style={styles.whiteS}>{numberWithCommas(this.props.countView)} Views</Text>
-					</View>
+					</View> */}
 				</View>
 			</View>
 		)
@@ -137,8 +146,7 @@ const styles = StyleSheet.create({
 	},
 	secondLine: {
 		marginHorizontal: 15,
-		marginLeft: 50,
-		marginBottom: 15,
+		marginBottom: 10,
 		flex: 1,
 		flexDirection: 'row',
 	},
@@ -157,7 +165,6 @@ const styles = StyleSheet.create({
 	whiteS: {
 		fontSize: 12,
 		marginTop: 0,
-		marginLeft: 10,
 		color: '#bbb',
 	},
 	white: {

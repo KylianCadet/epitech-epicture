@@ -3,6 +3,7 @@ import TouchableImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
 import PageActionBar from '../components/PageActionBar'
 import { getRequest, numberWithCommas } from '../screens/HomeScreen'
+import { connect } from 'react-redux'
 import Video from 'react-native-video';
 import {
 	ScrollView,
@@ -138,15 +139,15 @@ function setDimensions(item) {
 	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	return ({ width: newwidth, height: newheight, box: boxwidth })
+	return ({ width: newwidth, height: newheight, box: boxwidth })	
 }
 
-function DisplayTitle(item, title, dim) {
+function DisplayTitle(item, title, dim, info) {
 	return (
 		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20, }]}>
 			<Text style={styles.title}>{title}</Text>
 			{
-				item.info.isLogged
+					info.isLogged
 					?
 					(
 						<PageActionBar
@@ -161,10 +162,12 @@ function DisplayTitle(item, title, dim) {
 							countLike={item.all.favorite_count}
 							skinComment={require('../assets/images/comment.png')}
 							countComment={item.all.comment_count}
-							skinView={require('../assets/images/view.png')}
-							countView={item.all.views}
 							skinTrophee={require('../assets/images/trophee.png')}
 							countTrophee={item.all.points}
+							skinView={require('../assets/images/view.png')}
+							countView={item.all.views}
+							username={item.all.account_url}
+							datetime={item.all.datetime}
 						/>)
 					:
 					(<View></View>)
@@ -173,11 +176,11 @@ function DisplayTitle(item, title, dim) {
 	)
 }
 
-function Item({ item, title }) {
+function Item({ item, title, info }) {
 	if (typeof item === 'undefined' || item === null) { return null }
 	var dim = setDimensions(item)
 	if (item.id === '0')
-		return (DisplayTitle(item, title, dim))
+		return (DisplayTitle(item, title, dim, info))
 	if (item.comment)
 		return (DisplayComment({ item, dim }))
 	else if (
@@ -192,7 +195,7 @@ function Item({ item, title }) {
 	}
 }
 
-export default class PostScreen extends React.Component {
+class PostScreen extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -204,11 +207,12 @@ export default class PostScreen extends React.Component {
 				},
 			],
 			title: null,
-			finishLoading: false
+			finishLoading: false,
+			header: this.props.authorizationHeader,
 		}
 	}
 	componentDidMount() {
-		getRequest('https://api.imgur.com/3/gallery/album/' + this.props.navigation.state.params.album_id).then((newData) => {
+		getRequest(this.state.header, 'https://api.imgur.com/3/gallery/album/' + this.props.navigation.state.params.album_id).then((newData) => {
 			this.setState({
 				finishLoading: true,
 				data: [this.state.data[0]]
@@ -219,7 +223,7 @@ export default class PostScreen extends React.Component {
 				})
 			})
 		}).then(() =>
-			getRequest('https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best').then((newData) => {
+			getRequest(this.state.header, 'https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best').then((newData) => {
 				this.setState({
 					data: this.state.data.concat(newData.data),
 				})
@@ -234,7 +238,7 @@ export default class PostScreen extends React.Component {
 			<SafeAreaView style={styles.container} >
 				<FlatList
 					data={this.state.data}
-					renderItem={({ item }) => <Item item={item} title={this.state.title} />}
+					renderItem={({ item }) => <Item item={item} title={this.state.title} info={this.props} />}
 					keyExtractor={item => item.id.toString()}
 				/>
 			</SafeAreaView >
@@ -242,9 +246,17 @@ export default class PostScreen extends React.Component {
 	}
 }
 
-PostScreen.navigationOptions = {
-	title: 'Home',
-};
+function mapStateToProps(state) {
+	return {
+		accountInfo: state.accountInfo,
+		isLogged: state.isLogged,
+		token: state.token,
+		username: state.username,
+		authorizationHeader: state.authorizationHeader
+	}
+}
+
+export default connect(mapStateToProps)(PostScreen)
 
 const styles = StyleSheet.create({
 	container: {

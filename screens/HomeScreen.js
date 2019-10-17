@@ -22,11 +22,10 @@ import { setDisplayTime } from './PostScreen';
 const client_id = '38c6850ce6bd17c'
 var page = 0
 
-export function getRequest(url) {
+export function getRequest(header, url) {
 	return fetch(url, {
 		headers: {
-			Authorization: 'Client-ID ' + client_id
-			// Authorization: '' + client_id
+			Authorization: header
 		}
 	})
 		.then((response) => response.json())
@@ -94,7 +93,6 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 	var author = all.account_url
 	if (author.length > 10)
 		author = author.substr(0, 10)
-	var test = 'test'
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
 			<Text style={styles.title}>{title}</Text>
@@ -149,7 +147,7 @@ class HomeScreen extends React.Component {
 		}
 	}
 	componentDidMount() {
-		getRequest('https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
+		getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
 			this.setState({ finishLoading: true, data: data.data })
 		})
 	}
@@ -170,7 +168,7 @@ class HomeScreen extends React.Component {
 					onEndReached={({ distanceFromEnd }) => {
 						page++
 						console.log('On affiche la page suivante n°', page.toString())
-						getRequest('https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
+						getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
 							this.setState({
 								finishLoading: true, data: this.state.data.concat(data.data)
 							})
@@ -187,7 +185,8 @@ function mapStateToProps(state) {
 		accountInfo: state.accountInfo,
 		isLogged: state.isLogged,
 		token: state.token,
-		username: state.username
+		username: state.username,
+		authorizationHeader: state.authorizationHeader
 	}
 }
 

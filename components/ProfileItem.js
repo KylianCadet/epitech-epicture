@@ -116,7 +116,8 @@ function ImageComponent({ image, navigate, album }) {
 				if (album) {
 					navigate('Post', {
 						images: album.images,
-						album_id: album.id
+						album_id: album.id,
+						all: album,
 					})
 				} else {
 					navigate('Image', {
