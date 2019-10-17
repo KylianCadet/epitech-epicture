@@ -17,6 +17,7 @@ import {
 	Image,
 } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { setDisplayTime } from './PostScreen';
 
 const client_id = '38c6850ce6bd17c'
 var page = 0
@@ -39,7 +40,7 @@ function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function DisplayImage({ item, dim, images, album_id, navigation }) {
+function DisplayImage({ all, item, dim, images, album_id, navigation, info, test }) {
 	return (
 		<TouchableImage
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -47,11 +48,14 @@ function DisplayImage({ item, dim, images, album_id, navigation }) {
 			navigation={navigation}
 			album_id={album_id}
 			images={images}
+			all={all}
+			info={info}
+			test={test}
 		/>
 	)
 }
 
-function DisplayVideo({ item, dim, images, album_id, navigation }) {
+function DisplayVideo({ all, item, dim, images, album_id, navigation, info }) {
 	return (
 		<TouchableVideo
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -59,6 +63,8 @@ function DisplayVideo({ item, dim, images, album_id, navigation }) {
 			navigation={navigation}
 			album_id={album_id}
 			images={images}
+			all={all}
+			info={info}
 		/>
 	)
 }
@@ -81,44 +87,34 @@ function DisplayActions({ all, item, dim }) {
 			skinView={require('../assets/images/view.png')}
 			countView={all.views}
 		/>
-		// <View style={{ flex: 1, flexDirection: 'row' }}>
-		// 	<ActionButton
-		// 		style={{}}
-		// 	/>
-			// <Text style={styles.vote}>{numberWithCommas(all.ups)}</Text>
-		// 	<ActionButton
-		// 		style={{}}
-		// 	/>
-		// 	<Text style={styles.vote}>{numberWithCommas(all.downs)}</Text>
-		// 	<ActionButton
-		// 		style={{}}
-		// 		skin={require('../assets/images/comment2.png')}
-		// 		skinPress={require('../assets/images/comment2.png')}
-		// 	/>
-		// 	<Text style={styles.vote}>{numberWithCommas(all.comment_count)}</Text>
-		// 	<ActionButton
-		// 		style={{}}
-		// 		skin={require('../assets/images/view_white.png')}
-		// 		skinPress={require('../assets/images/view_white.png')}
-		// 	/>
-		// 	<Text style={styles.vote}>{numberWithCommas(all.views)}</Text>
-		// </View>
 	)
 }
 
-function DisplayMedia({ all, item, dim, images, album_id, navigation, title, props }) {
+function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info }) {
+	var author = all.account_url
+	if (author.length > 10)
+		author = author.substr(0, 10)
+	var test = 'test'
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
+			<Text style={styles.title}>{title}</Text>
+			<View style={styles.topbar}>
+				<Text style={[styles.white, { flex: 1.1 }]}>
+					<Text style={styles.white}>by </Text>
+					<Text style={[styles.white, { fontWeight: 'bold', color: '#FFF' }]}>{author}</Text>
+				</Text>
+				<Text style={[styles.white, { flex: 1 }]}>{numberWithCommas(all.score)} pts</Text>
+				<Text style={[styles.white, { flex: 0.60 }]}>{setDisplayTime(all.datetime)}</Text>
+			</View>
 			{
 				item.type === 'video/mp4'
 					?
-					(DisplayVideo({ item, dim, images, album_id, navigation }))
+					(DisplayVideo({ all, item, dim, images, album_id, navigation, info }))
 					:
-					(DisplayImage({ item, dim, images, album_id, navigation }))
+					(DisplayImage({ all, item, dim, images, album_id, navigation, info }))
 			}
-			<Text style={styles.title}>{title}</Text>
 			{
-				props.isLogged
+				info.isLogged
 					?
 					(DisplayActions({ all, item, dim }))
 					:
@@ -128,7 +124,7 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, pro
 	);
 }
 
-function Item({ all, title, images, navigation, album_id, props }) {
+function Item({ all, title, images, navigation, album_id, info }) {
 	if (typeof images === 'undefined' || images === null) { return null }
 	var item = images[0]
 	var dim = setDimensions(item)
@@ -137,7 +133,7 @@ function Item({ all, title, images, navigation, album_id, props }) {
 		item.type === 'image/png' ||
 		item.type === 'image/gif' ||
 		item.type === 'image/jpeg')
-		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, props }))
+		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, info }))
 	else {
 		console.log('Unknow item : ' + item.type + ' ' + title)
 		return (null)
@@ -168,7 +164,7 @@ class HomeScreen extends React.Component {
 						images={item.images}
 						album_id={item.id}
 						navigation={this.props.navigation}
-						props={this.props} />}
+						info={this.props} />}
 					keyExtractor={item => item.id}
 					onEndReachedThreshold={0.5}
 					onEndReached={({ distanceFromEnd }) => {
@@ -228,11 +224,18 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		fontSize: 20,
 		color: '#FFFFFF',
-		marginHorizontal: 15,
-		marginTop: 15,
+		padding: 15,
+		// marginTop: 15,
 	},
-	image: {
-		borderTopLeftRadius: 10,
-		borderTopRightRadius: 10,
+	topbar: {
+		flex: 1,
+		flexDirection: 'row',
+		marginLeft: 10,
+		marginBottom: 10,
+		marginTop: -5,
+	},
+	white: {
+		fontSize: 12,
+		color: '#BBBBBB',
 	},
 });

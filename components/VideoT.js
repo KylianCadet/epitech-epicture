@@ -9,6 +9,8 @@ export default class TouchableVideo extends React.Component {
 				<TouchableHighlight onPress={() => this.props.navigation.navigate('Post', {
 					images: this.props.images,
 					album_id: this.props.album_id,
+					all: this.props.all,
+					info: this.props.info,
 				})}>
 					<Video
 						style={this.props.style}

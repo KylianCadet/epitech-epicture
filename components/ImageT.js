@@ -8,6 +8,8 @@ export default class TouchableImage extends React.Component {
 				<TouchableHighlight onPress={() => this.props.navigation.navigate('Post', {
 					images: this.props.images,
 					album_id: this.props.album_id,
+					all: this.props.all,
+					info: this.props.info,
 				})}>
 					<Image
 						style={this.props.style}

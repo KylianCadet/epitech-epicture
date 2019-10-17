@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native'
 
-function numberWithCommas(x) {
+export function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
@@ -35,10 +35,10 @@ export default class HomeActionBar extends React.Component {
 		return (
 			<View style={styles.container}>
 				<TouchableOpacity
-					style={styles.touchzone}
+					style={styles.icon}
 					onPress={() => this.switchUp()}
 				>
-					<View style={styles.container}>
+					<View style={styles.icon}>
 						<Image
 							style={styles.image}
 							source={
@@ -57,10 +57,10 @@ export default class HomeActionBar extends React.Component {
 					</View>
 				</TouchableOpacity>
 				<TouchableOpacity
-					style={styles.touchzone}
+					style={styles.icon}
 					onPress={() => this.switchDown()}
 				>
-					<View style={styles.container}>
+					<View style={styles.icon}>
 						<Image
 							style={styles.image}
 							source={
@@ -78,11 +78,11 @@ export default class HomeActionBar extends React.Component {
 						>{numberWithCommas(this.props.countDown)}</Text>
 					</View>
 				</TouchableOpacity>
-				<View style={styles.comment}>
+				<View style={styles.icon}>
 					<Image style={styles.image} source={this.props.skinComment} />
 					<Text style={styles.white}>{numberWithCommas(this.props.countComment)}</Text>
 				</View>
-				<View style={styles.view}>
+				<View style={styles.icon}>
 					<Image style={styles.image} source={this.props.skinView} />
 					<Text style={styles.white}>{numberWithCommas(this.props.countView)}</Text>
 				</View>
@@ -95,18 +95,21 @@ const styles = StyleSheet.create({
 	container: {
 		// marginBottom: 15,
 		// alignSelf: 'center',
+		padding: 15,
+		flex: 1,
 		flexDirection: 'row',
 	},
-	touchzone: {
-		padding: 15,
+	icon: {
+		flex: 1,
+		flexDirection: 'row',
 	},
 	comment: {
-		padding: 15,
+		flex: 1,
 		flexDirection: 'row',
 	},
 	view: {
-		padding: 15,
-		marginLeft: -10,
+		flex: 1,
+		// marginLeft: -10,
 		flexDirection: 'row',
 	},
 	image: {

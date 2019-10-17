@@ -1,6 +1,7 @@
 import React from 'react';
 import TouchableImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
+import PageActionBar from '../components/PageActionBar'
 import { getRequest, numberWithCommas } from '../screens/HomeScreen'
 import Video from 'react-native-video';
 import {
@@ -19,15 +20,15 @@ function DisplayGifComment({ gifLink, item, dim, author, date }) {
 	var id = gifLink.substr(gifLink.length - 11).substr(0, gifLink.length - 4)
 	id = id.substr(0, id.length - 4)
 	return (
-		<View style={[styles.comment, { marginHorizontal: dim.box }]}>
+		<View style={[styles.item, { marginHorizontal: dim.box }]}>
 			<View style={{ flexDirection: 'row' }}>
-				<Text style={styles.nickname}>
+				<Text style={[styles.nickname, { flex: 2 }]}>
 					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
 					<Text style={{}}> via </Text>
 					<Text style={{ color: '#7789ff' }}>{platform}</Text>
 				</Text>
-				<Text style={styles.nickname}>{numberWithCommas(item.points)} pts</Text>
-				<Text style={styles.nickname}>{date}</Text>
+				<Text style={[styles.nickname, { flex: 1 }]}>{item.points} pts</Text>
+				<Text style={[styles.nickname, { flex: 1 }]}>{date}</Text>
 			</View>
 			<Image
 				style={[styles.img, {
@@ -46,22 +47,22 @@ function DisplayGifComment({ gifLink, item, dim, author, date }) {
 function DisplayTextComment({ item, dim, author, date }) {
 	var platform = item.platform.charAt(0).toUpperCase() + item.platform.slice(1);
 	return (
-		<View style={[styles.comment, { marginHorizontal: dim.box }]}>
+		<View style={[styles.item, { marginHorizontal: dim.box }]}>
 			<View style={{ flexDirection: 'row' }}>
-				<Text style={styles.nickname}>
+				<Text style={[styles.nickname, { flex: 2 }]}>
 					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
 					<Text style={{}}> via </Text>
 					<Text style={{ color: '#7789ff' }}>{platform}</Text>
 				</Text>
-				<Text style={styles.nickname}>{item.points} pts</Text>
-				<Text style={styles.nickname}>{date}</Text>
+				<Text style={[styles.nickname, { flex: 1 }]}>{item.points} pts</Text>
+				<Text style={[styles.nickname, { flex: 1 }]}>{date}</Text>
 			</View>
 			<Text style={styles.text}>{item.comment}</Text>
 		</View>
 	);
 }
 
-function setDisplayTime(datetime) {
+export function setDisplayTime(datetime) {
 	const time = new Date(datetime * 1000)
 	var date = time.toString().split(' ')
 	date.pop()
@@ -82,8 +83,8 @@ function urlify(text) {
 function DisplayComment({ item, dim }) {
 	var date = setDisplayTime(item.datetime)
 	var author = item.author
-	if (author.length > 15)
-		author = author.substr(0, 15)
+	if (author.length > 10)
+		author = author.substr(0, 10)
 	var gifLink = urlify(item.comment)
 	if (gifLink != 'undefined' && gifLink.substr(0, 4) === 'http' && (
 		gifLink.substr(gifLink.length - 4) === 'gifv' ||
@@ -97,14 +98,6 @@ function DisplayComment({ item, dim }) {
 	} else {
 		return (DisplayTextComment({ item, dim, author, date }))
 	}
-}
-
-function DisplayTitle(title) {
-	return (
-		<View>
-			<Text style={styles.title}>{title}</Text>
-		</View>
-	);
 }
 
 function DisplayVideo({ item, dim }) {
@@ -148,11 +141,43 @@ function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
+function DisplayTitle(item, title, dim) {
+	return (
+		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20, }]}>
+			<Text style={styles.title}>{title}</Text>
+			{
+				item.info.isLogged
+					?
+					(
+						<PageActionBar
+							skinUp={require('../assets/images/up.png')}
+							skinPressUp={require('../assets/images/up_green.png')}
+							countUp={item.all.ups}
+							skinDown={require('../assets/images/down.png')}
+							skinPressDown={require('../assets/images/down_red.png')}
+							countDown={item.all.downs}
+							skinLike={require('../assets/images/like.png')}
+							skinPressLike={require('../assets/images/like_cyan.png')}
+							countLike={item.all.favorite_count}
+							skinComment={require('../assets/images/comment.png')}
+							countComment={item.all.comment_count}
+							skinView={require('../assets/images/view.png')}
+							countView={item.all.views}
+							skinTrophee={require('../assets/images/trophee.png')}
+							countTrophee={item.all.points}
+						/>)
+					:
+					(<View></View>)
+			}
+		</View>
+	)
+}
+
 function Item({ item, title }) {
-	if (item.id === '0')
-		return (DisplayTitle(title))
 	if (typeof item === 'undefined' || item === null) { return null }
 	var dim = setDimensions(item)
+	if (item.id === '0')
+		return (DisplayTitle(item, title, dim))
 	if (item.comment)
 		return (DisplayComment({ item, dim }))
 	else if (
@@ -172,7 +197,11 @@ export default class PostScreen extends React.Component {
 		super(props)
 		this.state = {
 			data: [
-				{ id: '0' },
+				{
+					id: '0',
+					all: this.props.navigation.state.params.all,
+					info: this.props.navigation.state.params.info,
+				},
 			],
 			title: null,
 			finishLoading: false
@@ -228,18 +257,6 @@ const styles = StyleSheet.create({
 	},
 	item: {
 		borderRadius: 10,
-		backgroundColor: '#424B54',
-		marginVertical: 20,
-		shadowColor: '#000000',
-		shadowOffset: {
-			width: 0,
-			height: 3
-		},
-		shadowRadius: 5,
-		shadowOpacity: 1,
-	},
-	comment: {
-		borderRadius: 10,
 		// backgroundColor: '#424B54',
 		backgroundColor: '#2c2f34',
 		marginVertical: 10,
@@ -257,7 +274,6 @@ const styles = StyleSheet.create({
 		fontSize: 25,
 		color: '#FFFFFF',
 		padding: 15,
-		marginTop: 10,
 	},
 	nickname: {
 		fontSize: 12,
