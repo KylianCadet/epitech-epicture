@@ -6,6 +6,7 @@ import HomeActionBar from '../components/HomeActionBar'
 import React from 'react';
 import { connect } from 'react-redux'
 import {
+	RefreshControl,
 	Platform,
 	StyleSheet,
 	SafeAreaView,
@@ -24,9 +25,20 @@ var page = 0
 
 export function getRequest(header, url) {
 	return fetch(url, {
+		headers: header
+
+	})
+		.then((response) => response.json())
+		.catch((error) => console.error(error))
+}
+
+export function postRequest(header, url) {
+	return fetch(url, {
+		method: 'post',
 		headers: {
-			Authorization: header
-		}
+			Authorization: header,
+			// 'Content-Type' : 'application/json',
+		},
 	})
 		.then((response) => response.json())
 		.catch((error) => console.error(error))
@@ -72,7 +84,8 @@ export function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function DisplayActions({ all, item, dim }) {
+function DisplayActions({ all, item, dim, header }) {
+	// console.log(all.title + ' : ' + all.vote)
 	return (
 		<HomeActionBar
 			skinUp={require('../assets/images/up.png')}
@@ -85,11 +98,14 @@ function DisplayActions({ all, item, dim }) {
 			countComment={all.comment_count}
 			skinView={require('../assets/images/view.png')}
 			countView={all.views}
+			vote={all.vote}
+			id={all.id}
+			header={header}
 		/>
 	)
 }
 
-function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info }) {
+function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header }) {
 	var author = all.account_url
 	if (author.length > 10)
 		author = author.substr(0, 10)
@@ -101,7 +117,7 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 					<Text style={styles.white}>by </Text>
 					<Text style={[styles.white, { fontWeight: 'bold', color: '#FFF' }]}>{author}</Text>
 				</Text>
-				<Text style={[styles.white, { flex: 1 }]}>{numberWithCommas(all.score)} pts</Text>
+				<Text style={[styles.white, { flex: 1 }]}>{numberWithCommas(all.points)} pts</Text>
 				<Text style={[styles.white, { flex: 0.60 }]}>{setDisplayTime(all.datetime)}</Text>
 			</View>
 			{
@@ -114,7 +130,7 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 			{
 				info.isLogged
 					?
-					(DisplayActions({ all, item, dim }))
+					(DisplayActions({ all, item, dim, header }))
 					:
 					(<View></View>)
 			}
@@ -122,7 +138,7 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 	);
 }
 
-function Item({ all, title, images, navigation, album_id, info }) {
+function Item({ all, title, images, navigation, album_id, info, header }) {
 	if (typeof images === 'undefined' || images === null) { return null }
 	var item = images[0]
 	var dim = setDimensions(item)
@@ -131,7 +147,7 @@ function Item({ all, title, images, navigation, album_id, info }) {
 		item.type === 'image/png' ||
 		item.type === 'image/gif' ||
 		item.type === 'image/jpeg')
-		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, info }))
+		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header }))
 	else {
 		console.log('Unknow item : ' + item.type + ' ' + title)
 		return (null)
@@ -141,15 +157,36 @@ function Item({ all, title, images, navigation, album_id, info }) {
 class HomeScreen extends React.Component {
 	constructor(props) {
 		super(props)
+
 		this.state = {
 			data: null,
-			finishLoading: false
+			loading: false,
+			refreshing: false,
 		}
 	}
 	componentDidMount() {
-		getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
-			this.setState({ finishLoading: true, data: data.data })
-		})
+		this.makeRemoteRequest()
+	}
+	makeRemoteRequest = () => {
+		getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString())
+			.then((data) => {
+				this.setState({
+					data: data.data,
+					loading: false,
+					refreshing: false,
+				})
+			})
+	}
+	handleRefresh = () => {
+		console.log('refresh')
+		this.setState(
+			{
+				data: [],
+				refreshing: true,
+			}, () => {
+				this.makeRemoteRequest()
+			}
+		)
 	}
 	render() {
 		return (
@@ -162,15 +199,18 @@ class HomeScreen extends React.Component {
 						images={item.images}
 						album_id={item.id}
 						navigation={this.props.navigation}
+						header={this.props.authorizationHeader}
 						info={this.props} />}
 					keyExtractor={item => item.id}
+					refreshing={this.state.refreshing}
+					onRefresh={this.handleRefresh}
 					onEndReachedThreshold={0.5}
 					onEndReached={({ distanceFromEnd }) => {
 						page++
 						console.log('On affiche la page suivante n°', page.toString())
 						getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString()).then((data) => {
 							this.setState({
-								finishLoading: true, data: this.state.data.concat(data.data)
+								loading: true, data: this.state.data.concat(data.data)
 							})
 						})
 					}}

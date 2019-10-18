@@ -26,7 +26,7 @@ function DisplayGifComment({ gifLink, item, dim, author, date }) {
 	var id = gifLink.substr(gifLink.length - 11).substr(0, gifLink.length - 4)
 	id = id.substr(0, id.length - 4)
 	return (
-		<View style={[styles.item, { marginHorizontal: dim.box }]}>
+		<View style={[styles.commentItem, { marginHorizontal: dim.box }]}>
 			<View style={{ flexDirection: 'row' }}>
 				<Text style={[styles.nickname, { flex: 2 }]}>
 					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
@@ -53,7 +53,7 @@ function DisplayGifComment({ gifLink, item, dim, author, date }) {
 function DisplayTextComment({ item, dim, author, date }) {
 	var platform = item.platform.charAt(0).toUpperCase() + item.platform.slice(1);
 	return (
-		<View style={[styles.item, { marginHorizontal: dim.box }]}>
+		<View style={[styles.commentItem, { marginHorizontal: dim.box }]}>
 			<View style={{ flexDirection: 'row' }}>
 				<Text style={[styles.nickname, { flex: 2 }]}>
 					<Text style={{ fontWeight: 'bold', color: '#FFF' }}>{author}</Text>
@@ -119,10 +119,12 @@ function DisplayVideo({ item, dim }) {
 
 function DisplayImage({ item, dim }) {
 	return (
-		<Image
-			style={[styles.img, { width: dim.width, height: dim.height }]}
-			source={{ uri: item.link }}
-		/>
+		<View style={styles.img}>
+			<Image
+				style={{ width: dim.width, height: dim.height }}
+				source={{ uri: item.link }}
+			/>
+		</View>
 	);
 }
 
@@ -136,6 +138,7 @@ function DisplayMedia({ item, dim }) {
 					:
 					(DisplayImage({ item, dim }))
 			}
+			<Text style={[styles.text, { marginTop: 10 }]}>{item.description}</Text>
 		</View>
 	);
 }
@@ -147,48 +150,66 @@ export function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function DisplayTitle(item, title, dim, info) {
+function DisplayTitle(item, title, dim, info, header) {
 	return (
 		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
 			{info.username == item.all.account_url ? (
 				<SettingPannel info={info} item={item} hidden={item.all.privacy == 'hidden' ? true : false} />
 			) : (<View></View>)}
 			<Text style={styles.title}>{title}</Text>
-			{
-				info.isLogged
-					?
-					(
-						<PageActionBar
-							skinUp={require('../assets/images/up.png')}
-							skinPressUp={require('../assets/images/up_green.png')}
-							countUp={item.all.ups}
-							skinDown={require('../assets/images/down.png')}
-							skinPressDown={require('../assets/images/down_red.png')}
-							countDown={item.all.downs}
-							skinLike={require('../assets/images/like.png')}
-							skinPressLike={require('../assets/images/like_cyan.png')}
-							countLike={item.all.favorite_count}
-							skinComment={require('../assets/images/comment.png')}
-							countComment={item.all.comment_count}
-							skinTrophee={require('../assets/images/trophee.png')}
-							countTrophee={item.all.points}
-							skinView={require('../assets/images/view.png')}
-							countView={item.all.views}
-							username={item.all.account_url}
-							datetime={item.all.datetime}
-						/>)
-					:
-					(<View></View>)
-			}
+			<View style={styles.infoLine}>
+
+				<View style={{ flexDirection: 'row', flex: 8 }}>
+					<Text style={styles.whiteS}>by </Text>
+					<Text style={[styles.whiteS, { fontWeight: 'bold', color: '#FFF' }]}>{item.all.account_url.substr(0, 12)}</Text>
+				</View>
+				<View style={{ flexDirection: 'row', flex: 8 }}>
+					<Text style={styles.whiteS}>{numberWithCommas(item.all.points)} Points</Text>
+				</View>
+				<Text style={[styles.whiteS, { flex: 4.5 }]}>{setDisplayTime(item.all.datetime)}</Text>
+			</View>
 		</View>
 	)
 }
 
-function Item({ item, title, info }) {
+function DisplayActionBar(item) {
+	var newwidth = Dimensions.get('window').width * 0.9
+	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
+	return (
+		<View style={[styles.actionBar, { marginHorizontal: boxwidth }]}>
+			{item.info.isLogged
+				?
+				(<PageActionBar
+					skinUp={require('../assets/images/up.png')}
+					skinPressUp={require('../assets/images/up_green.png')}
+					countUp={item.all.ups}
+					skinDown={require('../assets/images/down.png')}
+					skinPressDown={require('../assets/images/down_red.png')}
+					countDown={item.all.downs}
+					skinLike={require('../assets/images/like.png')}
+					skinPressLike={require('../assets/images/like_cyan.png')}
+					countLike={item.all.favorite_count}
+					skinComment={require('../assets/images/comment.png')}
+					countComment={item.all.comment_count}
+					skinTrophee={require('../assets/images/trophee.png')}
+					skinView={require('../assets/images/view.png')}
+					countView={item.all.views}
+					vote={item.all.vote}
+					fav={item.all.favorite}
+					id={item.all.id}
+					header={item.header}
+				/>) : (<View></View>)}
+		</View>
+	)
+}
+
+function Item({ item, title, info, header }) {
 	if (typeof item === 'undefined' || item === null) { return null }
 	var dim = setDimensions(item)
 	if (item.id === '0')
-		return (DisplayTitle(item, title, dim, info))
+		return (DisplayTitle(item, title, dim, info, header))
+	if (item.transition)
+		return (DisplayActionBar(item, info, header))
 	if (item.comment)
 		return (DisplayComment({ item, dim }))
 	else if (
@@ -198,7 +219,8 @@ function Item({ item, title, info }) {
 		item.type === 'image/jpeg')
 		return (DisplayMedia({ item, dim }))
 	else {
-		console.log('Unknow item : ' + item)
+		console.log('Unknow item : ')
+		console.log(item)
 		return (null)
 	}
 }
@@ -212,6 +234,15 @@ class PostScreen extends React.Component {
 					id: '0',
 					all: this.props.navigation.state.params.all,
 					info: this.props.navigation.state.params.info,
+				},
+			],
+			transition: [
+				{
+					id: 'transition',
+					transition: 10,
+					all: this.props.navigation.state.params.all,
+					info: this.props.navigation.state.params.info,
+					header: this.props.authorizationHeader,
 				},
 			],
 			title: null,
@@ -239,7 +270,7 @@ class PostScreen extends React.Component {
 		data = await getRequest(this.state.header, 'https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best')
 		if (data.success)
 			this.setState({
-				data: this.state.data.concat(data.data),
+				data: this.state.data.concat(this.state.transition[0]).concat(data.data),
 			})
 		for (var i = 0; i < this.state.data.length; i++) {
 			this.state.data[i].id = i.toString()
@@ -250,7 +281,13 @@ class PostScreen extends React.Component {
 			<SafeAreaView style={styles.container} >
 				<FlatList
 					data={this.state.data}
-					renderItem={({ item }) => <Item item={item} title={this.state.title} info={this.props} />}
+					renderItem={({ item }) =>
+						<Item
+							item={item}
+							title={this.state.title}
+							info={this.props}
+							header={this.state.header}
+						/>}
 					keyExtractor={item => item.id.toString()}
 				/>
 			</SafeAreaView >
@@ -280,6 +317,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	item: {
+		borderRadius: 10,
+		paddingBottom: 10,
+		// backgroundColor: '#424B54',
+		backgroundColor: '#2c2f34',
+		marginVertical: -5,
+		shadowColor: '#000000',
+		shadowOffset: {
+			width: 0,
+			height: 3
+		},
+		shadowRadius: 5,
+		shadowOpacity: 1,
+	},
+	commentItem: {
 		borderRadius: 10,
 		// backgroundColor: '#424B54',
 		backgroundColor: '#2c2f34',
@@ -311,5 +362,32 @@ const styles = StyleSheet.create({
 		color: '#FFFFFF',
 		marginBottom: 12,
 		marginHorizontal: 12,
+	},
+	infoLine: {
+		marginHorizontal: 15,
+		// marginBottom: 5,
+		paddingBottom: 10,
+		flex: 1,
+		flexDirection: 'row',
+	},
+	whiteS: {
+		fontSize: 12,
+		marginTop: 0,
+		color: '#bbb',
+	},
+	actionBar: {
+		borderBottomLeftRadius: 10,
+		borderBottomRightRadius: 10,
+		paddingBottom: 10,
+		marginBottom: 10,
+		backgroundColor: '#2c2f34',
+		marginVertical: -5,
+		shadowColor: '#000000',
+		shadowOffset: {
+			width: 0,
+			height: 3
+		},
+		shadowRadius: 5,
+		shadowOpacity: 1,
 	},
 });

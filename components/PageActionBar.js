@@ -1,6 +1,7 @@
 import React from 'react'
 import { setDisplayTime } from '../screens/PostScreen';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native'
+import { postRequest } from '../screens/HomeScreen';
 
 export function numberWithCommas(x) {
 	if (typeof x === 'undefined' || x === null) { return '0' }
@@ -15,6 +16,14 @@ export default class PageActionBar extends React.Component {
 			pressStatusDown: false,
 			pressStatusLike: false,
 		};
+	}
+	componentDidMount() {
+		if (this.props.vote === 'up')
+			this.setState({ pressStatusUp: true });
+		else if (this.props.vote === 'down')
+			this.setState({ pressStatusDown: true });
+		if (this.props.fav)
+			this.setState({ pressStatusLike: true });
 	}
 	switchUp() {
 		if (this.state.pressStatusUp)
@@ -40,113 +49,81 @@ export default class PageActionBar extends React.Component {
 		else
 			this.setState({ pressStatusLike: true });
 	}
-	s
+	ItemCase = (status, stylePress, text, skin, skinPress) => {
+		return (
+			<View style={styles.case}>
+				<Image style={styles.icon} source={status ? skinPress : skin} />
+				<Text style={status ? stylePress : styles.white}>{text}</Text>
+			</View>
+		)
+	}
 	render() {
 		return (
-			<View>
-				<View style={styles.container}>
-					<TouchableOpacity
-						style={{ flex: 8 }}
-						onPress={() => this.switchUp()}
-					>
-						<View style={styles.case}>
-							<Image
-								style={styles.icon}
-								source={
-									this.state.pressStatusUp
-										? this.props.skinPressUp
-										: this.props.skinUp
-								}
-							/>
-							<Text
-								style={
-									this.state.pressStatusUp
-										? styles.green
-										: styles.white
-								}
-							>{numberWithCommas(this.props.countUp)}</Text>
-						</View>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={{ flex: 7 }}
-						onPress={() => this.switchDown()}
-					>
-						<View style={styles.case}>
-							<Image
-								style={styles.icon}
-								source={
-									this.state.pressStatusDown
-										? this.props.skinPressDown
-										: this.props.skinDown
-								}
-							/>
-							<Text
-								style={
-									this.state.pressStatusDown
-										? styles.red
-										: styles.white
-								}
-							>{numberWithCommas(this.props.countDown)}</Text>
-						</View>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={{ flex: 5 }}
-						onPress={() => this.switchLike()}
-					>
-						<View style={styles.case}>
-							<Image
-								style={styles.icon}
-								source={
-									this.state.pressStatusLike
-										? this.props.skinPressLike
-										: this.props.skinLike
-								}
-							/>
-							<Text
-								style={
-									this.state.pressStatusLike
-										? styles.cyan
-										: styles.white
-								}
-							>{numberWithCommas(this.props.countLike)}</Text>
-						</View>
-					</TouchableOpacity>
-				</View >
-				<View style={styles.secondLine}>
-					{/* <View style={{ flexDirection: 'row', flex: 8 }}>
-						<Image style={styles.iconS} source={this.props.skinComment} />
-						<Text style={styles.whiteS}>{numberWithCommas(this.props.countComment)}</Text>
-					</View> */}
-					<View style={{ flexDirection: 'row', flex: 8 }}>
-						{/* <Image style={styles.iconS} source={this.props.skinTrophee} /> */}
-						<Text style={styles.whiteS}>by </Text>
-						<Text style={[styles.whiteS, { fontWeight: 'bold', color: '#FFF' }]}>{this.props.username.substr(0, 12)}</Text>
-					</View>
-					<View style={{ flexDirection: 'row', flex: 8 }}>
-						{/* <Image style={styles.iconS} source={this.props.skinTrophee} /> */}
-						<Text style={styles.whiteS}>{numberWithCommas(this.props.countTrophee)} Points</Text>
-					</View>
-					<Text style={[styles.whiteS, { flex: 4.5 }]}>{setDisplayTime(this.props.datetime)}</Text>
-					{/* <View style={{ flexDirection: 'row', flex: 1 }}>
-						<Image style={styles.iconS} source={this.props.skinView} />
-						<Text style={styles.whiteS}>{numberWithCommas(this.props.countView)} Views</Text>
-					</View> */}
-				</View>
-			</View>
+			<View style={styles.container}>
+				<TouchableOpacity
+					style={{ flex: 8 }}
+					onPress={() => {
+						this.switchUp()
+						postRequest(this.props.header, 'https://api.imgur.com/3/gallery/' + this.props.id.toString() + '/vote/up')
+							.then((data) => { console.log(data) })
+					}}
+				>
+					{
+						this.ItemCase(
+							this.state.pressStatusUp,
+							styles.green,
+							numberWithCommas(this.props.countUp),
+							this.props.skinUp,
+							this.props.skinPressUp
+						)
+					}
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ flex: 7 }}
+					onPress={() => {
+						this.switchDown()
+						postRequest(this.props.header, 'https://api.imgur.com/3/gallery/' + this.props.id.toString() + '/vote/down')
+							.then((data) => { console.log(data) })
+					}}
+				>
+					{
+						this.ItemCase(
+							this.state.pressStatusDown,
+							styles.red,
+							numberWithCommas(this.props.countDown),
+							this.props.skinDown,
+							this.props.skinPressDown
+						)
+					}
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ flex: 5 }}
+					onPress={() => {
+						this.switchLike()
+						console.log(this.props.id)
+						postRequest(this.props.header, 'https://api.imgur.com/3/album/' + this.props.id.toString() + '/favorite')
+							.then((data) => { console.log(data) })
+					}}
+				>
+					{
+						this.ItemCase(
+							this.state.pressStatusLike,
+							styles.cyan,
+							numberWithCommas(this.props.countLike),
+							this.props.skinLike,
+							this.props.skinPressLike
+						)
+					}
+				</TouchableOpacity>
+			</View >
 		)
 	}
 }
 
 const styles = StyleSheet.create({
 	container: {
-		marginHorizontal: 15,
-		marginBottom: 15,
-		flex: 1,
-		flexDirection: 'row',
-	},
-	secondLine: {
-		marginHorizontal: 15,
-		marginBottom: 10,
+		marginVertical: 5,
+		marginHorizontal: 20,
 		flex: 1,
 		flexDirection: 'row',
 	},
@@ -162,32 +139,27 @@ const styles = StyleSheet.create({
 		width: 17.5,
 		height: 17.5,
 	},
-	whiteS: {
-		fontSize: 12,
-		marginTop: 0,
-		color: '#bbb',
-	},
 	white: {
 		fontSize: 15,
-		marginTop: 5,
+		marginTop: 2,
 		marginLeft: 10,
 		color: '#ddd',
 	},
 	green: {
 		fontSize: 15,
-		marginTop: 5,
+		marginTop: 2,
 		marginLeft: 10,
 		color: '#35CB67',
 	},
 	red: {
 		fontSize: 15,
-		marginTop: 5,
+		marginTop: 2,
 		marginLeft: 10,
 		color: '#CF3232',
 	},
 	cyan: {
 		fontSize: 15,
-		marginTop: 5,
+		marginTop: 2,
 		marginLeft: 10,
 		color: '#33CBCC',
 	},

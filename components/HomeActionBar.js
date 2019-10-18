@@ -1,5 +1,6 @@
 import React from 'react'
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native'
+import { postRequest } from '../screens/HomeScreen';
 
 export function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -12,6 +13,12 @@ export default class HomeActionBar extends React.Component {
 			pressStatusUp: false,
 			pressStatusDown: false,
 		};
+	}
+	componentDidMount() {
+		if (this.props.vote === 'up')
+			this.setState({ pressStatusUp: true });
+		else if (this.props.vote === 'down')
+			this.setState({ pressStatusDown: true });
 	}
 	switchUp() {
 		if (this.state.pressStatusUp)
@@ -36,7 +43,11 @@ export default class HomeActionBar extends React.Component {
 			<View style={styles.container}>
 				<TouchableOpacity
 					style={styles.icon}
-					onPress={() => this.switchUp()}
+					onPress={() => {
+						this.switchUp()
+						postRequest(this.props.header, 'https://api.imgur.com/3/gallery/' + this.props.id.toString() + '/vote/up')
+							.then((data) => { console.log(data) })
+					}}
 				>
 					<View style={styles.icon}>
 						<Image
@@ -58,8 +69,12 @@ export default class HomeActionBar extends React.Component {
 				</TouchableOpacity>
 				<TouchableOpacity
 					style={styles.icon}
-					onPress={() => this.switchDown()}
-				>
+					onPress={() => {
+						this.switchDown()
+						postRequest(this.props.header, 'https://api.imgur.com/3/gallery/' + this.props.id.toString() + '/vote/down')
+							.then((data) => { console.log(data) })
+					}}
+			>
 					<View style={styles.icon}>
 						<Image
 							style={styles.image}
