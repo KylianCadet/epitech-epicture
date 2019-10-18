@@ -47,6 +47,7 @@ function CustomVideo({ video, dim }) {
 				source={{ uri: video.link ? video.link : video.mp4 }}
 				repeat={true}
 				resizeMode={"cover"}
+				muted={true}
 			/>
 		</View>
 	)
@@ -118,6 +119,7 @@ function ImageComponent({ image, navigate, album }) {
 						images: album.images,
 						album_id: album.id,
 						all: album,
+						perso: true,
 					})
 				} else {
 					navigate('Image', {

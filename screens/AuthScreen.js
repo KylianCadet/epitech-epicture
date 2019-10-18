@@ -51,8 +51,7 @@ class MainScreen extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		isLogged: state.isLogged,
-		authorizationHeader: state.authorizationHeader
+		isLogged: state.isLogged
 	}
 }
 

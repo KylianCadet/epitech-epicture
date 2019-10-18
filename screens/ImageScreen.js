@@ -1,22 +1,37 @@
 import React from 'react'
-import { View, Text, SafeAreaView, StyleSheet, FlatList } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, FlatList, Image, Dimensions } from 'react-native'
 import { connect } from 'react-redux'
 import Color from '../constants/Colors'
 import { fetchBearer } from '../components/customFetch'
+import { DisplayComment, DisplayGifComment, DisplayTextComment, setDisplayTime, urlify } from '../screens/PostScreen'
 
-function Comment({ comment }) {
-	console.log(comment.comment)
-	return (<View><Text>{comment.comment}</Text></View>)
+
+function setDimensions(item) {
+	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
+	var newwidth = Dimensions.get('window').width * 0.9
+	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
+	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function Image({ image }) {
-	console.log(image.link)
-	return (<View><Text>IMAGE</Text></View>)
+function MyImage({ image }) {
+	const dim = setDimensions(image)
+	return (
+		<View style={{ justifyContent: 'center' }}>
+			<Image
+				source={{ uri: image.link }}
+				style={{ width: dim.width, height: dim.height, borderRadius: 10 }}
+			/>
+		</View>
+	)
 }
 function Item({ image, comment }) {
-	if (image) return <View><Text>IMAGE</Text></View>
-	if (comment) return <View><Text>COMMENT</Text></View>
-	return <View><Text>undefined</Text></View>
+	var newwidth = Dimensions.get('window').width * 0.9
+	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
+	return (
+		<View elevation={7.5} style={[styles.item, { marginHorizontal: boxwidth }]}>
+			{image ? (<MyImage image={image} />) : (<DisplayComment item={comment} dim={boxwidth} />)}
+		</View>
+	)
 }
 
 class ImageScreen extends React.Component {
@@ -42,17 +57,18 @@ class ImageScreen extends React.Component {
 		this.setState({
 			data: this.state.data.concat(allData)
 		})
-		console.log(this.state.data)
 	}
 	render() {
 		return (
-			<SafeAreaView style={styles.container} >
-				<FlatList
-					data={this.state.data}
-					renderItem={({ item }) => <Item image={item.image} comment={item.comment} />}
-					keyExtractor={item => item.id.toString()}
-				/>
-			</SafeAreaView >
+			<View style={styles.constainer}>
+				<SafeAreaView>
+					<FlatList
+						data={this.state.data}
+						renderItem={({ item }) => <Item image={item.image} comment={item.comment} />}
+						keyExtractor={item => item.id.toString()}
+					/>
+				</SafeAreaView >
+			</View>
 		)
 	}
 }
@@ -72,5 +88,20 @@ const styles = StyleSheet.create({
 	constainer: {
 		backgroundColor: Color.backgroundColor,
 		flex: 1
-	}
+	},
+	item: {
+		borderRadius: 10,
+		textAlign: 'center',
+		// backgroundColor: '#424B54',
+		backgroundColor: '#2c2f34',
+		marginVertical: 20,
+		shadowColor: '#000000',
+		shadowOffset: {
+			width: 0,
+			height: 3
+		},
+		shadowRadius: 5,
+		shadowOpacity: 1,
+		// marginHorizontal: 20,
+	},
 })

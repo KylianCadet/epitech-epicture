@@ -4,7 +4,9 @@ import TouchableVideo from '../components/VideoT'
 import PageActionBar from '../components/PageActionBar'
 import { getRequest, numberWithCommas } from '../screens/HomeScreen'
 import { connect } from 'react-redux'
-import Video from 'react-native-video';
+import Video from 'react-native-video'
+import SettingPannel from '../components/SettingPannel'
+
 import {
 	ScrollView,
 	StyleSheet,
@@ -14,6 +16,9 @@ import {
 	Dimensions,
 	View,
 	Image,
+	TouchableOpacity,
+	Button,
+	Alert
 } from 'react-native';
 
 function DisplayGifComment({ gifLink, item, dim, author, date }) {
@@ -81,7 +86,7 @@ function urlify(text) {
 	})
 }
 
-function DisplayComment({ item, dim }) {
+export function DisplayComment({ item, dim }) {
 	var date = setDisplayTime(item.datetime)
 	var author = item.author
 	if (author.length > 10)
@@ -135,19 +140,22 @@ function DisplayMedia({ item, dim }) {
 	);
 }
 
-function setDimensions(item) {
+export function setDimensions(item) {
 	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	return ({ width: newwidth, height: newheight, box: boxwidth })	
+	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
 function DisplayTitle(item, title, dim, info) {
 	return (
-		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20, }]}>
+		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
+			{info.username == item.all.account_url ? (
+				<SettingPannel info={info} item={item} hidden={item.all.privacy == 'hidden' ? true : false} />
+			) : (<View></View>)}
 			<Text style={styles.title}>{title}</Text>
 			{
-					info.isLogged
+				info.isLogged
 					?
 					(
 						<PageActionBar
@@ -211,24 +219,28 @@ class PostScreen extends React.Component {
 			header: this.props.authorizationHeader,
 		}
 	}
-	componentDidMount() {
-		getRequest(this.state.header, 'https://api.imgur.com/3/gallery/album/' + this.props.navigation.state.params.album_id).then((newData) => {
+	async componentDidMount() {
+		const gallery_uri = 'https://api.imgur.com/3/gallery/album/' + this.props.navigation.state.params.album_id
+		const account_gallery_uri = 'https://api.imgur.com/3/account/' + this.props.username + '/album/' + this.props.navigation.state.params.album_id
+		var data
+		if (this.props.isLogged)
+			data = await getRequest(this.state.header, account_gallery_uri)
+		else
+			data = await getRequest(this.state.header, gallery_uri)
+		this.setState({
+			finishLoading: true,
+			data: [this.state.data[0]]
+		}, () => {
 			this.setState({
-				finishLoading: true,
-				data: [this.state.data[0]]
-			}, () => {
-				this.setState({
-					data: this.state.data.concat(newData.data.images),
-					title: newData.data.title,
-				})
+				data: this.state.data.concat(data.data.images),
+				title: data.data.title,
 			})
-		}).then(() =>
-			getRequest(this.state.header, 'https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best').then((newData) => {
-				this.setState({
-					data: this.state.data.concat(newData.data),
-				})
+		})
+		data = await getRequest(this.state.header, 'https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best')
+		if (data.success)
+			this.setState({
+				data: this.state.data.concat(data.data),
 			})
-		)
 		for (var i = 0; i < this.state.data.length; i++) {
 			this.state.data[i].id = i.toString()
 		}
