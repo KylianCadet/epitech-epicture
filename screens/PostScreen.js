@@ -177,7 +177,7 @@ function DisplayActionBar(item) {
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
 	return (
 		<View style={[styles.actionBar, { marginHorizontal: boxwidth }]}>
-			{item.info.isLogged
+			{item.isLogged
 				?
 				(<PageActionBar
 					skinUp={require('../assets/images/up.png')}
@@ -233,7 +233,7 @@ class PostScreen extends React.Component {
 				{
 					id: '0',
 					all: this.props.navigation.state.params.all,
-					info: this.props.navigation.state.params.info,
+					info: this.props,
 				},
 			],
 			transition: [
@@ -241,8 +241,8 @@ class PostScreen extends React.Component {
 					id: 'transition',
 					transition: 10,
 					all: this.props.navigation.state.params.all,
-					info: this.props.navigation.state.params.info,
 					header: this.props.authorizationHeader,
+					isLogged: this.props.isLogged
 				},
 			],
 			title: null,
@@ -277,6 +277,7 @@ class PostScreen extends React.Component {
 		}
 	}
 	render() {
+		console.log(this.props)
 		return (
 			<SafeAreaView style={styles.container} >
 				<FlatList
