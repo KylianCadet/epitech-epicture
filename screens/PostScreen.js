@@ -151,6 +151,9 @@ export function setDimensions(item) {
 }
 
 function DisplayTitle(item, title, dim, info, header) {
+	if (item.all.points == undefined) {
+		item.all.points = '0'
+	} // image ou album privé
 	return (
 		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
 			{info.username == item.all.account_url ? (
@@ -175,6 +178,7 @@ function DisplayTitle(item, title, dim, info, header) {
 function DisplayActionBar(item) {
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
+	console.log(item)
 	return (
 		<View style={[styles.actionBar, { marginHorizontal: boxwidth }]}>
 			{item.isLogged
@@ -194,7 +198,7 @@ function DisplayActionBar(item) {
 					skinTrophee={require('../assets/images/trophee.png')}
 					skinView={require('../assets/images/view.png')}
 					countView={item.all.views}
-					vote={item.all.vote}
+					vote={item.vote}
 					fav={item.all.favorite}
 					id={item.all.id}
 					header={item.header}
@@ -206,18 +210,22 @@ function DisplayActionBar(item) {
 function Item({ item, title, info, header }) {
 	if (typeof item === 'undefined' || item === null) { return null }
 	var dim = setDimensions(item)
-	if (item.id === '0')
+	if (item.id === '0') {
 		return (DisplayTitle(item, title, dim, info, header))
-	if (item.transition)
+	}
+	if (item.transition) {
 		return (DisplayActionBar(item, info, header))
-	if (item.comment)
+	}
+	if (item.comment) {
 		return (DisplayComment({ item, dim }))
+	}
 	else if (
 		item.type === 'video/mp4' ||
 		item.type === 'image/png' ||
 		item.type === 'image/gif' ||
-		item.type === 'image/jpeg')
+		item.type === 'image/jpeg') {
 		return (DisplayMedia({ item, dim }))
+	}
 	else {
 		console.log('Unknow item : ')
 		console.log(item)
@@ -277,7 +285,6 @@ class PostScreen extends React.Component {
 		}
 	}
 	render() {
-		console.log(this.props)
 		return (
 			<SafeAreaView style={styles.container} >
 				<FlatList
