@@ -128,7 +128,7 @@ function ImageComponent({ image, navigate, album }) {
 				}
 			}} >
 				<View>
-					{image.type === 'video/mp4' ?
+					{image.type === 'video/mp4' || image.type === 'image/gif' ?
 						(<CustomVideo video={image} dim={dim} />)
 						:
 						(<CustomImage image={image} dim={dim} />)

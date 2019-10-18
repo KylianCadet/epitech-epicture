@@ -103,7 +103,6 @@ class UploadScreen extends React.Component {
 				</View>
 				<TextInput
 					onChangeText={(text) => {
-						console.log(text)
 						this.description = text
 					}}
 					placeholder={'Description'}

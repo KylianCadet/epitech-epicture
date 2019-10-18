@@ -54,10 +54,9 @@ class ProfileScreen extends React.Component {
 			var allData = []
 			for (var i = 0; i != data.data.length; i++)
 				allData.push({
-					'id': data.data[i].id,
+					'id': i.toString(),
 					'image': data.data[i],
 				})
-			console.log(allData[0].image.images[0])
 			this.setData(allData)
 		})
 	}
