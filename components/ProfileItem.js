@@ -4,6 +4,8 @@ import Video from 'react-native-video';
 import { View, Image, StyleSheet, TouchableOpacity, Text, Dimensions, TouchableHighlight, ImageBackground } from 'react-native'
 
 import HomeActionBar from '../components/HomeActionBar'
+import Colors from '../constants/Colors';
+import { fetchBearer, fetchAuthorization } from './customFetch';
 
 
 function setDimensions(item) {
@@ -13,7 +15,16 @@ function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function generateComment(comment) {
+async function navigateToComment(comment, navigate) {
+	const data = await fetchAuthorization('https://api.imgur.com/3/album/' + comment.image_id)
+	navigate('Post', {
+		images: data.data.images,
+		album_id: data.data.id,
+		all: data.data,
+	})
+}
+
+function generateComment(comment, navigate) {
 	const comment_time = new Date(comment.datetime * 1000)
 	var display_time = comment_time.toString().split(' ')
 	display_time.pop()
@@ -22,7 +33,7 @@ function generateComment(comment) {
 	const upvote = comment.ups - comment.downs < 0 ? 0 : comment.ups - comment.downs
 	return (
 		<View>
-			<TouchableOpacity onPress={() => console.log(comment.image_id)}>
+			<TouchableOpacity onPress={() => navigateToComment(comment, navigate)}>
 				<View style={{ flexDirection: 'row' }}>
 					<Image source={{ uri: comment.image_link }} style={{ marginBottom: 10, marginTop: 10, marginLeft: 10, width: 60, height: 60, resizeMode: 'contain' }}></Image>
 					<View>
@@ -146,14 +157,16 @@ function ImageComponent({ image, navigate, album }) {
 }
 
 function generateImage(elem, navigate) {
-	var image
+	var image = null
 	var album = null
-	if (elem.images) {
+	if (elem.is_album) {
 		image = elem.images[0]
 		album = elem
 	}
 	else
 		image = elem
+	if (!image)
+		return (<View></View>)
 	if (
 		image.type === 'video/mp4' ||
 		image.type === 'image/png' ||
@@ -174,11 +187,10 @@ export function Item({ image, data, comment, navigate }) {
 			</View>
 		)
 	}
-	if (image) {
-		return generateImage(image, navigate)
-	}
 	if (comment)
-		return generateComment(comment)
+		return generateComment(comment, navigate)
+	if (image)
+		return generateImage(image, navigate)
 	return (<View></View>)
 }
 
@@ -193,7 +205,6 @@ const styles = StyleSheet.create({
 		backgroundColor: Color.backgroundColor
 	},
 	title: {
-		// marginVertical: 15,
 		fontWeight: 'bold',
 		textAlign: 'center',
 		fontSize: 20,
@@ -204,8 +215,7 @@ const styles = StyleSheet.create({
 	item: {
 		borderRadius: 10,
 		textAlign: 'center',
-		// backgroundColor: '#424B54',
-		backgroundColor: '#2c2f34',
+		backgroundColor: Colors.itemColor,
 		marginVertical: 20,
 		shadowColor: '#000000',
 		shadowOffset: {
@@ -214,9 +224,8 @@ const styles = StyleSheet.create({
 		},
 		shadowRadius: 5,
 		shadowOpacity: 1,
-		// marginHorizontal: 20,
 	},
 	footer: {
-		color: 'grey'
+		color: Color.itemColor
 	}
 });

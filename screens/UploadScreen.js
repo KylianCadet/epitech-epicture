@@ -31,22 +31,24 @@ class UploadScreen extends React.Component {
 	uploadImage() {
 		this.setState({ isLoading: true, uploadButton: true })
 		const uri = 'https://api.imgur.com/3/upload/'
-		var form = new FormData()
-		form.append('image', this.state.photo.data)
-		form.append('type', 'base64')
-		form.append('title', this.title)
-		form.append('description', this.description)
+		const data = {
+			image: this.state.photo.data,
+			type: 'base64',
+			title: this.title,
+			description: this.description,
+		}
 		fetch(uri, {
 			method: 'post',
 			headers: {
 				'Authorization': 'Bearer ' + this.props.token,
-				'Content-Type' : 'multipart/form-data',
+				'Content-Type' : 'application/json',
 			},
-			body: form
+			body: JSON.stringify(data)
 		})
 			.then((response) => response.json())
 			.then((data) => {
 				this.setState({ isLoading: false, photo: null })
+				console.log(data)
 			})
 			.catch((error) => console.error(error))
 	}

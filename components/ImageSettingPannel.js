@@ -1,26 +1,28 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, TextInput, Alert } from 'react-native';
+import React from 'react'
+import { View, TextInput, TouchableOpacity, Image, Alert } from 'react-native'
+import Colors from '../constants/Colors'
 
-export default class UploadScreen extends React.Component {
+class ImageSettingPannel extends React.Component {
 	constructor(props) {
 		super(props)
-		this.info = null
-		this.item = null
-		this.text = ''
 		this.state = {
-			hidden: null
+			hidden: null,
 		}
+		this.info = null
+		this.image = null
+		this.text = ''
 	}
 	componentDidMount() {
 		this.info = this.props.info
-		this.item = this.props.item
+		this.image = this.props.image
 		this.setState({
-			hidden: this.item.all.in_gallery ? false : true
+			hidden: this.image.in_gallery ? false : true
 		})
 	}
+
 	async setTitle() {
-		const response = await fetch('https://api.imgur.com/3/album/' + this.item.all.id, {
-			method: 'put',
+		const response = await fetch('https://api.imgur.com/3/image/' + this.image.id, {
+			method: 'post',
 			headers: {
 				'Authorization': 'Bearer ' + this.props.info.token,
 				'Content-Type': 'application/json',
@@ -29,7 +31,24 @@ export default class UploadScreen extends React.Component {
 		})
 		const data = await response.json()
 		if (data.success) {
-			Alert.alert('Album name modified')
+			Alert.alert('Image name modified')
+			this.info.navigation.goBack()
+		} else {
+			Alert.alert('An error occured')
+			console.log(data)
+		}
+	}
+	async deleteImage() {
+		const response = await fetch('https://api.imgur.com/3/image/' + this.image.id, {
+			method: 'delete',
+			headers: {
+				'Authorization': 'Bearer ' + this.props.info.token,
+			}
+		})
+		const data = await response.json()
+		if (data.success) {
+			console.log(data)
+			Alert.alert('Image deleted')
 			this.info.navigation.goBack()
 		} else {
 			Alert.alert('An error occured')
@@ -41,28 +60,15 @@ export default class UploadScreen extends React.Component {
 			hidden: !this.state.hidden
 		})
 	}
-	async delete() {
-		const response = await fetch('https://api.imgur.com/3/account/' + this.info.username + '/album/' + this.item.all.id, {
-			method: 'delete',
-			headers: this.info.authorizationHeader
-		})
-		const data = await response.json()
-		if (data.success) {
-			Alert.alert('Album deleted')
-			this.info.navigation.goBack()
-		} else {
-			Alert.alert('An error occured')
-		}
-	}
 	async setVisibilityTrue() {
-		console.log("going to share image")
+		console.log(this.image.id)
 		const response = await fetch('https://imgur.com/ajax/share', {
 			method: 'post',
 			headers: {
 				'Authorization': 'Bearer ' + this.props.info.token,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ hash: this.item.all.id, title: this.item.all.title.replace(/ /g, '+'), is_album: 1, mature: 0 })
+			body: JSON.stringify({ hash: this.image.id, title: this.image.title.replace(/ /g, '+'), is_album: 0, mature: 0 })
 		})
 		const data = await response.json()
 		if (data.success) {
@@ -74,14 +80,15 @@ export default class UploadScreen extends React.Component {
 		}
 	}
 	async setVisibilityFalse() {
-		const response = await fetch('https://imgur.com/gallery/action/delete_image/' + this.item.all.id, {
+		fetch('https://imgur.com/gallery/action/delete_image/' + this.image.id, {
 			method: 'post',
-			headers: this.info.authorizationHeader,
-			body: JSON.stringify({sid: '7e4b4b793439dbb0f5e52a5ce06ac092'})
+			headers: {
+				'Authorization': 'Bearer ' + this.props.info.token,
+			},
+			body: JSON.stringify({ sid: '7e4b4b793439dbb0f5e52a5ce06ac092' })
 		})
-		console.log(response)
 		this.modifyHiddenState()
-		Alert.alert('Album is now private')
+		Alert.alert('Image is now private')
 	}
 	async setVisibility() {
 		if (this.state.hidden)
@@ -102,7 +109,6 @@ export default class UploadScreen extends React.Component {
 				>
 				</TextInput>
 				<TouchableOpacity onPress={() => { this.setVisibility() }}>
-
 					{this.state.hidden ?
 						(<Image style={{ flex: 1, height: 30, width: 30, marginRight: 10, borderWidth: 10, resizeMode: 'contain' }} source={require('../assets/images/eyeIcon.png')}></Image>)
 						:
@@ -110,7 +116,7 @@ export default class UploadScreen extends React.Component {
 					}
 
 				</TouchableOpacity>
-				<TouchableOpacity onPress={() => { this.delete() }}>
+				<TouchableOpacity onPress={() => { this.deleteImage() }}>
 					<Image style={{ flex: 1, height: 30, width: 30, marginRight: 10, borderWidth: 10, resizeMode: 'contain' }} source={require('../assets/images/trashIcon.png')} />
 				</TouchableOpacity>
 			</View>
@@ -118,9 +124,4 @@ export default class UploadScreen extends React.Component {
 	}
 }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-	},
-});
+export default ImageSettingPannel

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, Image, ImageBackground, SafeAreaView, Button } from 'react-native'
+import { View, StyleSheet, Text, Image, ImageBackground, SafeAreaView, Button, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler';
 import ClickableButtonLine from '../components/ClickableButtonLine'
@@ -7,6 +7,7 @@ import FitButton from '../components/FitButton'
 import NotLoginView from '../components/NotLoginView.js'
 import { fetchAuthorization, fetchBearer, getAccountBase } from '../components/customFetch'
 import { Item } from '../components/ProfileItem'
+import Colors from '../constants/Colors';
 
 
 function getEmptyDataBlock() {
@@ -54,7 +55,7 @@ class ProfileScreen extends React.Component {
 			var allData = []
 			for (var i = 0; i != data.data.length; i++)
 				allData.push({
-					'id': i.toString(),
+					'id': data.data[i].id.toString(),
 					'image': data.data[i],
 				})
 			this.setData(allData)
@@ -76,14 +77,21 @@ class ProfileScreen extends React.Component {
 		}
 		this.setData(allData)
 	}
-	Banner(username, cover, avatar, bio) {
+	Banner(username, cover, avatar, bio, navigate) {
 		return (
 			<View style={{ flex: 1, backgroundColor: 'white' }}>
 				<ImageBackground source={{ uri: cover }} style={{ flex: 1, width: null, height: 200 }}>
 					<View style={{ flexDirection: 'row', flex: 1 }}>
 						<Text style={{ flex: 1, marginBottom: 'auto', marginRight: 'auto', paddingTop: 20, paddingLeft: 20, fontSize: 20, color: 'white' }}>{username}</Text>
 						<Image source={{ uri: avatar }} style={{ height: 100, width: 100, marginBottom: 'auto', paddingTop: 10 }} />
-						<FitButton title='...' style={{ marginBottom: 'auto' }}></FitButton>
+						<TouchableOpacity onPress={() => navigate('Settings', {
+							username: username,
+							cover: cover,
+							avatar: avatar,
+							bio: bio,
+						})}>
+							<Image source={require('../assets/images/dotIcon.png')} style={{width:40, height:40, resizeMode:'contain'}}></Image>
+						</TouchableOpacity>
 					</View>
 					<Text style={{ flex: 1, paddingTop: 20, paddingLeft: 20, color: 'white' }}>{bio}</Text>
 				</ImageBackground>
@@ -107,7 +115,7 @@ class ProfileScreen extends React.Component {
 			const bio = data.data.bio
 			this.setState({
 				data: [
-					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio)},
+					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio, this.props.navigation.navigate) },
 					{ id: 'pannel', data: this.Pannel() },
 				],
 			})
@@ -121,17 +129,16 @@ class ProfileScreen extends React.Component {
 	}
 
 	_logged() {
-		const {navigate} = this.props.navigation
+		const { navigate } = this.props.navigation
 		if (this.props.isLogged) {
 			if (this.state.data[0].id == '0')
 				this._init()
 			return (
-				<SafeAreaView style={[styles.container]}>
+				<SafeAreaView>
 					<FlatList
-						style={{ flex: 1, backgroundColor: '#3a3739' }}
 						data={this.state.data}
 						extraData={this.state.data}
-						renderItem={({ item }) => <Item image={item.image} data={item.data} comment={item.comment} navigate={navigate} />}
+						renderItem={({ item }) =><Item image={item.image} data={item.data} comment={item.comment} navigate={navigate} />}
 						keyExtractor={item => item.id}
 						stickyHeaderIndices={this.state.stickyHeaderIndices}>
 					</FlatList>
@@ -178,10 +185,10 @@ export default connect(mapStateToProps)(ProfileScreen)
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
+		backgroundColor: Colors.backgroundColor,
 	},
 	itemContainer: {
 		flex: 1,
-		backgroundColor: '#3a3739'
+		backgroundColor: Colors.backgroundColor
 	}
 });

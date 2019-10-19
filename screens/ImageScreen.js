@@ -3,33 +3,46 @@ import { View, Text, SafeAreaView, StyleSheet, FlatList, Image, Dimensions } fro
 import { connect } from 'react-redux'
 import Color from '../constants/Colors'
 import { fetchBearer } from '../components/customFetch'
-import { DisplayComment, DisplayGifComment, DisplayTextComment, setDisplayTime, urlify } from '../screens/PostScreen'
+import SettingPannel from '../components/SettingPannel'
+import { getRequest, numberWithCommas } from '../screens/HomeScreen'
+import ImageSettingPannel from '../components/ImageSettingPannel'
+import { DisplayComment, setDimensions, setDisplayTime } from '../screens/PostScreen'
 
 
-function setDimensions(item) {
-	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
-	var newwidth = Dimensions.get('window').width * 0.9
-	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	return ({ width: newwidth, height: newheight, box: boxwidth })
-}
-
-function MyImage({ image }) {
-	const dim = setDimensions(image)
+function MyImage({ image, dim, info }) {
 	return (
-		<View style={{ justifyContent: 'center' }}>
-			<Image
-				source={{ uri: image.link }}
-				style={{ width: dim.width, height: dim.height, borderRadius: 10 }}
-			/>
+		<View>
+			<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
+				{info.username == image.account_url ? (
+					<ImageSettingPannel info={info} image={image} />
+				) : (<View></View>)}
+				{image.title ? (<Text style={styles.title}>{image.title}</Text>) : (<Text style={styles.notitle}>No title</Text>)}
+				<View style={styles.infoLine}>
+
+					<View style={{ flexDirection: 'row', flex: 8 }}>
+						<Text style={styles.whiteS}>by </Text>
+						<Text style={[styles.whiteS, { fontWeight: 'bold', color: '#FFF' }]}>{image.account_url.substr(0, 12)}</Text>
+					</View>
+					<View style={{ flexDirection: 'row', flex: 8 }}>
+						{image.points ? (<Text style={styles.whiteS}>{numberWithCommas(image.points)} Points</Text>) : (<View></View>)}
+					</View>
+					<Text style={[styles.whiteS, { flex: 4.5 }]}>{setDisplayTime(image.datetime)}</Text>
+				</View>
+			</View>
+			<View style={{ justifyContent: 'center' }}>
+				<Image
+					source={{ uri: image.link }}
+					style={{ width: dim.width, height: dim.height, borderRadius: 10 }}
+				/>
+			</View>
 		</View>
 	)
 }
-function Item({ image, comment }) {
-	var newwidth = Dimensions.get('window').width * 0.9
-	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
+
+function Item({ image, comment, info, dim }) {
 	return (
-		<View elevation={7.5} style={[styles.item, { marginHorizontal: boxwidth }]}>
-			{image ? (<MyImage image={image} />) : (<DisplayComment item={comment} dim={boxwidth} />)}
+		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
+			{image ? (<MyImage image={image} dim={dim} info={info} />) : (<DisplayComment item={comment} dim={dim}/>)}
 		</View>
 	)
 }
@@ -41,9 +54,11 @@ class ImageScreen extends React.Component {
 			data: []
 		}
 		this.image = null
+		this.dim = null
 	}
 	async componentDidMount() {
 		this.image = this.props.navigation.state.params.image
+		this.dim = setDimensions(this.image)
 		this.setState({
 			data: [{ id: 'image', image: this.image }]
 		})
@@ -60,15 +75,13 @@ class ImageScreen extends React.Component {
 	}
 	render() {
 		return (
-			<View style={styles.constainer}>
-				<SafeAreaView>
-					<FlatList
-						data={this.state.data}
-						renderItem={({ item }) => <Item image={item.image} comment={item.comment} />}
-						keyExtractor={item => item.id.toString()}
-					/>
-				</SafeAreaView >
-			</View>
+			<SafeAreaView style={styles.container}>
+				<FlatList
+					data={this.state.data}
+					renderItem={({ item }) => <Item image={item.image} comment={item.comment} info={this.props} dim={this.dim} />}
+					keyExtractor={item => item.id.toString()}
+				/>
+			</SafeAreaView >
 		)
 	}
 }
@@ -85,7 +98,7 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(ImageScreen)
 
 const styles = StyleSheet.create({
-	constainer: {
+	container: {
 		backgroundColor: Color.backgroundColor,
 		flex: 1
 	},
@@ -103,5 +116,31 @@ const styles = StyleSheet.create({
 		shadowRadius: 5,
 		shadowOpacity: 1,
 		// marginHorizontal: 20,
+	},
+	infoLine: {
+		marginHorizontal: 15,
+		// marginBottom: 5,
+		paddingBottom: 10,
+		flex: 1,
+		flexDirection: 'row',
+	},
+	title: {
+		fontWeight: 'bold',
+		textAlign: 'center',
+		fontSize: 25,
+		color: '#FFFFFF',
+		padding: 15,
+	},
+	notitle: {
+		fontWeight: 'bold',
+		textAlign: 'center',
+		fontSize: 25,
+		color: 'grey',
+		padding: 15,
+	},
+	whiteS: {
+		fontSize: 12,
+		marginTop: 0,
+		color: '#bbb',
 	},
 })

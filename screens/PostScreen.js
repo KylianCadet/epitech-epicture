@@ -128,7 +128,7 @@ function DisplayImage({ item, dim }) {
 	);
 }
 
-function DisplayMedia({ item, dim }) {
+export function DisplayMedia({ item, dim }) {
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
 			{
@@ -150,7 +150,7 @@ export function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function DisplayTitle(item, title, dim, info, header) {
+export function DisplayTitle(item, title, dim, info, header) {
 	if (item.all.points == undefined) {
 		item.all.points = '0'
 	} // image ou album privé
@@ -178,7 +178,6 @@ function DisplayTitle(item, title, dim, info, header) {
 function DisplayActionBar(item) {
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	console.log(item)
 	return (
 		<View style={[styles.actionBar, { marginHorizontal: boxwidth }]}>
 			{item.isLogged

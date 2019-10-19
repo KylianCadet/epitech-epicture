@@ -10,9 +10,16 @@ import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginWebView from '../screens/LoginWebView'
 import SearchView from '../screens/SearchScreen'
-import ImageView from '../screens/ImageScreen'
 import ImageScreen from '../screens/ImageScreen';
+import SettingsScreen from '../screens/SettingsScreen'
+import Colors from '../constants/Colors';
 
+
+const navigationOpt = () => ({
+	headerStyle: {
+		backgroundColor: Colors.navigationColor
+	}
+})
 
 const SearchStack = createStackNavigator({
 	Search: {
@@ -32,9 +39,11 @@ SearchStack.navigationOptions = {
 const HomeStack = createStackNavigator({
 	Home: {
 		screen: HomeScreen,
+		navigationOptions: navigationOpt,
 	},
 	Post: {
 		screen: PostScreen,
+		navigationOptions: navigationOpt,
 	},
 });
 
@@ -65,16 +74,24 @@ UploadStack.navigationOptions = {
 const ProfileStack = createStackNavigator({
 	Profile: {
 		screen: ProfileScreen,
+		navigationOptions: navigationOpt,
 	},
 	LoginWebView: {
 		screen: LoginWebView,
+		navigationOptions: navigationOpt,
 	},
 	Post: {
 		screen: PostScreen,
+		navigationOptions: navigationOpt,
 	},
 	Image: {
 		screen: ImageScreen,
+		navigationOptions: navigationOpt,
 	},
+	Settings: {
+		screen: SettingsScreen,
+		navigationOptions: navigationOpt,
+	}
 });
 
 ProfileStack.navigationOptions = {
