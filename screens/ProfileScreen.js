@@ -89,6 +89,7 @@ class ProfileScreen extends React.Component {
 							cover: cover,
 							avatar: avatar,
 							bio: bio,
+							refresh: this.refresh.bind(this)
 						})}>
 							<Image source={require('../assets/images/dotIcon.png')} style={{width:40, height:40, resizeMode:'contain'}}></Image>
 						</TouchableOpacity>
@@ -128,6 +129,9 @@ class ProfileScreen extends React.Component {
 		this._init()
 	}
 
+	refresh() {
+		this._init()
+	}
 	_logged() {
 		const { navigate } = this.props.navigation
 		if (this.props.isLogged) {
@@ -138,7 +142,7 @@ class ProfileScreen extends React.Component {
 					<FlatList
 						data={this.state.data}
 						extraData={this.state.data}
-						renderItem={({ item }) =><Item image={item.image} data={item.data} comment={item.comment} navigate={navigate} />}
+						renderItem={({ item }) =><Item image={item.image} data={item.data} comment={item.comment} navigate={navigate} refresh={this.refresh.bind(this)}/>}
 						keyExtractor={item => item.id}
 						stickyHeaderIndices={this.state.stickyHeaderIndices}>
 					</FlatList>

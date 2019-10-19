@@ -15,12 +15,13 @@ function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-async function navigateToComment(comment, navigate) {
+async function navigateToComment(comment, navigate, refresh) {
 	const data = await fetchAuthorization('https://api.imgur.com/3/album/' + comment.image_id)
 	navigate('Post', {
 		images: data.data.images,
 		album_id: data.data.id,
 		all: data.data,
+		refresh: refresh,
 	})
 }
 
@@ -120,7 +121,7 @@ function ImageFooter({ image, album }) {
 	return <ScoreFooter images_count={images_count}></ScoreFooter>
 }
 
-function ImageComponent({ image, navigate, album }) {
+function ImageComponent({ image, navigate, album, refresh }) {
 	var dim = setDimensions(image)
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
@@ -131,10 +132,12 @@ function ImageComponent({ image, navigate, album }) {
 						album_id: album.id,
 						all: album,
 						perso: true,
+						refresh: refresh
 					})
 				} else {
 					navigate('Image', {
-						image: image
+						image: image,
+						refresh: refresh,
 					})
 				}
 			}} >
@@ -156,7 +159,7 @@ function ImageComponent({ image, navigate, album }) {
 	)
 }
 
-function generateImage(elem, navigate) {
+function generateImage(elem, navigate, refresh) {
 	var image = null
 	var album = null
 	if (elem.is_album) {
@@ -172,14 +175,14 @@ function generateImage(elem, navigate) {
 		image.type === 'image/png' ||
 		image.type === 'image/gif' ||
 		image.type === 'image/jpeg')
-		return (<ImageComponent image={image} navigate={navigate} album={album}></ImageComponent>)
+		return (<ImageComponent image={image} navigate={navigate} album={album} refresh={refresh}></ImageComponent>)
 	else {
 		console.log('Unknow image : ' + image.type + ' ' + image.title)
 		return (null)
 	}
 }
 
-export function Item({ image, data, comment, navigate }) {
+export function Item({ image, data, comment, navigate, refresh }) {
 	if (data) {
 		return (
 			<View style={styles.itemContainer}>
@@ -188,9 +191,9 @@ export function Item({ image, data, comment, navigate }) {
 		)
 	}
 	if (comment)
-		return generateComment(comment, navigate)
+		return generateComment(comment, navigate, refresh)
 	if (image)
-		return generateImage(image, navigate)
+		return generateImage(image, navigate, refresh)
 	return (<View></View>)
 }
 

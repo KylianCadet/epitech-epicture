@@ -15,6 +15,7 @@ class ImageSettingPannel extends React.Component {
 	componentDidMount() {
 		this.info = this.props.info
 		this.image = this.props.image
+		this.refresh = this.props.info.navigation.state.params.refresh
 		this.setState({
 			hidden: this.image.in_gallery ? false : true
 		})
@@ -32,6 +33,7 @@ class ImageSettingPannel extends React.Component {
 		const data = await response.json()
 		if (data.success) {
 			Alert.alert('Image name modified')
+			this.refresh()
 			this.info.navigation.goBack()
 		} else {
 			Alert.alert('An error occured')
@@ -49,6 +51,7 @@ class ImageSettingPannel extends React.Component {
 		if (data.success) {
 			console.log(data)
 			Alert.alert('Image deleted')
+			this.refresh()
 			this.info.navigation.goBack()
 		} else {
 			Alert.alert('An error occured')

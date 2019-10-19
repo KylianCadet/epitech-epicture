@@ -11,6 +11,7 @@ class SettingsScreen extends React.Component {
 		this.cover = this.props.navigation.state.params.cover
 		this.bio = this.props.navigation.state.params.bio
 		this.username = this.props.navigation.state.params.username
+		this.refresh = this.props.navigation.state.params.refresh
 	}
 
 	async uploadSettings() {
@@ -25,6 +26,7 @@ class SettingsScreen extends React.Component {
 		const data = await response.json()
 		if (data.success) {
 			Alert.alert('Success')
+			this.refresh()
 			this.props.navigation.goBack()
 		} else {
 			Alert.alert('An error occurred')
