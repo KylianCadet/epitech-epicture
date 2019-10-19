@@ -199,7 +199,10 @@ dependencies {
 
     // For WebP support, including animated WebP
     compile 'com.facebook.fresco:animated-webp:1.+'
-    compile 'com.facebook.fresco:webpsupport:1.+' 
+    compile 'com.facebook.fresco:webpsupport:1.+'
+
+	// For webcookies
+	compile project(':react-native-cookies')
 }
 
 // Run this once to be able to run the application with BUCK

@@ -12,10 +12,10 @@ import { DisplayComment, setDimensions, setDisplayTime } from '../screens/PostSc
 function MyImage({ image, dim, info }) {
 	return (
 		<View>
+			{info.username == image.account_url ? (
+				<ImageSettingPannel info={info} image={image} />
+			) : (<View></View>)}
 			<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
-				{info.username == image.account_url ? (
-					<ImageSettingPannel info={info} image={image} />
-				) : (<View></View>)}
 				{image.title ? (<Text style={styles.title}>{image.title}</Text>) : (<Text style={styles.notitle}>No title</Text>)}
 				<View style={styles.infoLine}>
 
@@ -42,7 +42,7 @@ function MyImage({ image, dim, info }) {
 function Item({ image, comment, info, dim }) {
 	return (
 		<View style={[styles.item, { marginHorizontal: dim.box, marginTop: 20 }]}>
-			{image ? (<MyImage image={image} dim={dim} info={info} />) : (<DisplayComment item={comment} dim={dim}/>)}
+			{image ? (<MyImage image={image} dim={dim} info={info} />) : (<DisplayComment item={comment} dim={dim} />)}
 		</View>
 	)
 }
@@ -104,10 +104,10 @@ const styles = StyleSheet.create({
 	},
 	item: {
 		borderRadius: 10,
-		textAlign: 'center',
+		paddingBottom: 10,
 		// backgroundColor: '#424B54',
 		backgroundColor: '#2c2f34',
-		marginVertical: 20,
+		marginVertical: -5,
 		shadowColor: '#000000',
 		shadowOffset: {
 			width: 0,
@@ -115,7 +115,6 @@ const styles = StyleSheet.create({
 		},
 		shadowRadius: 5,
 		shadowOpacity: 1,
-		// marginHorizontal: 20,
 	},
 	infoLine: {
 		marginHorizontal: 15,

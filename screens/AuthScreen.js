@@ -15,19 +15,12 @@ class MainScreen extends React.Component {
 	}
 
 	componentDidMount() {
-		AsyncStorage.getItem('isLogged').then((data) => {
-			if (data == 'true') {
-				this.props.onBack()
-				this._navigateToMain()
-			}
-		})
+		this.props.onBack()
 	}
+	
 	componentDidUpdate() {
 		if (this.props.isLogged)
-			this._navigateToMain()
-	}
-	_navigateToMain() {
-		this.props.navigation.navigate('Main')
+			this.props.navigation.navigate('Main')
 	}
 	render() {
 		const { navigate } = this.props.navigation
@@ -37,11 +30,9 @@ class MainScreen extends React.Component {
 				<View style={{ flex: 1 }}>
 					<FitButton style={{}} title='Login with your Imgur account' onPress={() => {
 						navigate('LoginWebView')
-						if (this.props.isLogged)
-							this._navigateToMain()
 					}} />
 					<TextButton style={{ marginLeft: 'auto', marginTop: 'auto', backgroundColor: Color.backgroundColor }} textStyle={{ color: 'white' }} text='Continue as a guest' onPress={() => {
-						this._navigateToMain()
+						this.props.navigation.navigate('Main')
 					}} />
 				</View>
 			</View>
@@ -73,19 +64,21 @@ function mapDispatchToProps(dispatch) {
 				})
 					.then((response) => response.json())
 					.then((data) => {
-						dispatch(dispatch_function('TOKEN', data['access_token']))
-						dispatch(dispatch_function('AUTHORIZATION', data['access_token']))
-						AsyncStorage.setItem('refresh_token', data['refresh_token'])
+						if (data.access_token) {
+							console.log(data)
+							dispatch(dispatch_function('TOKEN', data['access_token']))
+							dispatch(dispatch_function('AUTHORIZATION', data['access_token']))
+							dispatch(dispatch_function('USERNAME', data['account_username']))
+							AsyncStorage.setItem('refresh_token', data['refresh_token'])
+							dispatch(dispatch_function('LOGIN'))
+						} else {
+							console.log(data)
+							AsyncStorage.removeItem('refresh_token')
+						}
 					})
-					.catch((error) => console.error(error))
 			})
-			AsyncStorage.getItem('username').then((username) => {
-				dispatch(dispatch_function('USERNAME', username))
-			})
-			dispatch(dispatch_function('LOGIN'))
 		},
 	}
-
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainScreen)

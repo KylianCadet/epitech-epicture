@@ -1,10 +1,11 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, Touchable, View, Button, Image, TextInput } from 'react-native';
+import { ScrollView, StyleSheet, Text, Touchable, View, Button, Image, TextInput, Alert } from 'react-native';
 import Color from '../constants/Colors'
 import ClientID from '../constants/ClientID'
 import { connect } from 'react-redux'
 import ImagePicker from 'react-native-image-picker';
 import LoadingView from 'react-native-loading-view'
+import Colors from '../constants/Colors';
 
 function fetchBearer(uri, token) {
 	return fetch(uri, {
@@ -22,6 +23,7 @@ class UploadScreen extends React.Component {
 		this.state = {
 			photo: null,
 			uploadButton: true,
+			selectButton: false,
 			isLoading: false,
 		};
 		this.title = ''
@@ -29,7 +31,7 @@ class UploadScreen extends React.Component {
 
 	}
 	uploadImage() {
-		this.setState({ isLoading: true, uploadButton: true })
+		this.setState({ isLoading: true, uploadButton: true, selectButton: true })
 		const uri = 'https://api.imgur.com/3/upload/'
 		const data = {
 			image: this.state.photo.data,
@@ -41,14 +43,18 @@ class UploadScreen extends React.Component {
 			method: 'post',
 			headers: {
 				'Authorization': 'Bearer ' + this.props.token,
-				'Content-Type' : 'application/json',
+				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(data)
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				this.setState({ isLoading: false, photo: null })
-				console.log(data)
+				this.setState({ isLoading: false, photo: null, selectButton: false })
+				if (data.success) {
+					Alert.alert('Image successfuly uploaded')
+				} else {
+					Alert.alert('An error occured', data.data.error)
+				}
 			})
 			.catch((error) => console.error(error))
 	}
@@ -71,10 +77,10 @@ class UploadScreen extends React.Component {
 			<View style={[styles.container]}>
 				<View style={{ flex: 1, flexDirection: 'row' }}>
 					<View style={{ flex: 1, marginRight: 'auto', paddingTop: 10, paddingLeft: 10, alignItems: 'flex-start' }}>
-						<Button title='Select Photo' onPress={this.handleChoosePhoto} color='grey' />
+						<Button title='Select Photo' onPress={this.handleChoosePhoto} color={Colors.itemColor} disabled={this.state.selectButton} />
 					</View>
 					<View style={{ flex: 1, marginLeft: 'auto', paddingTop: 10, paddingRight: 10, alignItems: 'flex-end' }}>
-						<Button title='Upload Photo' onPress={() => this.uploadImage()} color='grey' disabled={this.state.uploadButton}></Button>
+						<Button title='Upload Photo' onPress={() => this.uploadImage()} color={Colors.itemColor} disabled={this.state.uploadButton}></Button>
 					</View>
 				</View>
 				<View style={{ flex: 1 }}></View>
@@ -95,21 +101,20 @@ class UploadScreen extends React.Component {
 				</View>
 				<View style={{ flex: 1 }}></View>
 
-				<View style={{ flex: 1, flexDirection: 'row' }}>
-					<TextInput
-						onChangeText={(text) => this.title = text}
-						placeholder={'Title'}
-						style={{ flex: 1, height: 40, borderColor: 'black', borderWidth: 1, backgroundColor: 'gray', borderRadius: 10 }}
-					/>
+				<Text style={[styles.textTitle]}>Title</Text>
+				<View style={{ flexDirection: 'row' }}>
+					<View style={{ flex: 1 }}></View>
+					<TextInput placeholder={'Title'} placeholderTextColor={'grey'} style={[styles.textInput]} onChangeText={text => this.title = text}></TextInput>
 					<View style={{ flex: 1 }}></View>
 				</View>
-				<TextInput
-					onChangeText={(text) => {
-						this.description = text
-					}}
-					placeholder={'Description'}
-					style={{ height: 40, borderColor: 'black', borderWidth: 1, backgroundColor: 'gray', borderRadius: 10 }}
-				/>
+
+				<Text style={[styles.textTitle]}>Description</Text>
+				<View style={{ flexDirection: 'row' }}>
+					<View style={{ flex: 1 }}></View>
+					<TextInput placeholder={'Description'} placeholderTextColor={'grey'} style={[styles.textInput]} onChangeText={text => this.description = text}></TextInput>
+					<View style={{ flex: 1 }}></View>
+				</View>
+				<View style={{ flex: 1 }}></View>
 			</View >
 		);
 	}
@@ -135,5 +140,20 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: Color.backgroundColor,
+	},
+	textTitle: {
+		color: 'grey',
+		fontSize: 10,
+		paddingLeft: 20,
+		paddingTop: 10,
+	},
+	textInput: {
+		flex: 10,
+		color: 'white',
+		paddingLeft: 30,
+		borderBottomColor: 'grey',
+		borderBottomWidth: 0.5,
+		paddingTop: 5,
+		textAlign: 'left',
 	},
 });

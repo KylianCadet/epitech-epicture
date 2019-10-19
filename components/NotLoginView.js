@@ -17,7 +17,9 @@ class NotLoginView extends React.Component {
 					<Text style={{color: 'white'}}>YOU ARE NOT LOGIN</Text>
 				</View>
 				<View style={{ flex: 1 }}>
-					<FixButton title="Login with your Imgur account" onPress={() => this.props.navigation.navigate('LoginWebView')} />
+					<FixButton title="Login with your Imgur account" onPress={() => this.props.navigation.navigate('LoginWebView', {
+						refresh: this.props.refresh,
+					})} />
 				</View>
 			</View>
 		);

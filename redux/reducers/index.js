@@ -1,4 +1,3 @@
-import accountInfoReducer from './accountInfo'
 import isLoggedReducer from './isLogged'
 import tokenReducer from './token'
 import usernameReducer from './username'
@@ -6,7 +5,6 @@ import authorizationReducer from './authorization'
 import { combineReducers } from 'redux'
 
 const allReducers = combineReducers({
-	accountInfo: accountInfoReducer,
 	isLogged: isLoggedReducer,
 	token: tokenReducer,
 	username: usernameReducer,

@@ -25,6 +25,7 @@ class ProfileScreen extends React.Component {
 			stickyHeaderIndices: [1],
 			isLoadding: true,
 		}
+
 	}
 	setData(newData) {
 		if (newData.length == 0) {
@@ -109,14 +110,15 @@ class ProfileScreen extends React.Component {
 			</View>
 		)
 	}
-	_init() {
-		getAccountBase(this.props.username).then((data) => {
+	_init(username) {
+		const account_username = username ? username : this.props.username
+		getAccountBase(account_username).then((data) => {
 			const cover = data.data.cover
 			const avatar = data.data.avatar
 			const bio = data.data.bio
 			this.setState({
 				data: [
-					{ id: 'banner', data: this.Banner(this.props.username, cover, avatar, bio, this.props.navigation.navigate) },
+					{ id: 'banner', data: this.Banner(account_username, cover, avatar, bio, this.props.navigation.navigate) },
 					{ id: 'pannel', data: this.Pannel() },
 				],
 			})
@@ -129,8 +131,8 @@ class ProfileScreen extends React.Component {
 		this._init()
 	}
 
-	refresh() {
-		this._init()
+	refresh(username = this.props.username) {
+		this._init(username)
 	}
 	_logged() {
 		const { navigate } = this.props.navigation
@@ -153,7 +155,7 @@ class ProfileScreen extends React.Component {
 	_guest() {
 		if (!this.props.isLogged) {
 			return (
-				<NotLoginView navigation={this.props.navigation} />
+				<NotLoginView navigation={this.props.navigation} refresh={this.refresh.bind(this)} />
 			)
 		}
 	}
@@ -170,7 +172,6 @@ class ProfileScreen extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		accountInfo: state.accountInfo,
 		isLogged: state.isLogged,
 		token: state.token,
 		username: state.username,
