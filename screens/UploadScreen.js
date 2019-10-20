@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import ImagePicker from 'react-native-image-picker';
 import LoadingView from 'react-native-loading-view'
 import Colors from '../constants/Colors';
+import CheckBox from 'react-native-check-box'
 
 function fetchBearer(uri, token) {
 	return fetch(uri, {
@@ -25,44 +26,63 @@ class UploadScreen extends React.Component {
 			uploadButton: true,
 			selectButton: false,
 			isLoading: false,
+			album: false,
+			public: false,
 		};
 		this.title = ''
 		this.description = ''
 
 	}
-	uploadImage() {
-		this.setState({ isLoading: true, uploadButton: true, selectButton: true })
-		const uri = 'https://api.imgur.com/3/upload/'
-		const data = {
-			image: this.state.photo.data,
-			type: 'base64',
+	async uploadAlbum() {
+		const json_data = {
 			title: this.title,
 			description: this.description,
+			privacy: this.state.public ? 'public' : 'hidden'
 		}
-		fetch(uri, {
+		const response = await fetch('https://api.imgur.com/3/album', {
 			method: 'post',
 			headers: {
 				'Authorization': 'Bearer ' + this.props.token,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(data)
+			body: JSON.stringify(json_data)
 		})
-			.then((response) => response.json())
-			.then((data) => {
-				this.setState({ isLoading: false, photo: null, selectButton: false })
-				if (data.success) {
-					Alert.alert('Image successfuly uploaded')
-				} else {
-					Alert.alert('An error occured', data.data.error)
-				}
-			})
-			.catch((error) => console.error(error))
+		const data = await response.json()
+		console.log(data)
+		const album_id = data.data.id
+		return album_id
+	}
+	async uploadImage() {
+		this.setState({ isLoading: true, uploadButton: true, selectButton: true })
+		const json_data = {
+			image: this.state.photo.data,
+			type: 'base64',
+			title: this.title,
+			description: this.description,
+		}
+		if (this.state.album)
+			json_data['album'] = await this.uploadAlbum()
+		const uri = 'https://api.imgur.com/3/upload/'
+		const response = await fetch(uri, {
+			method: 'post',
+			headers: {
+				'Authorization': 'Bearer ' + this.props.token,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(json_data)
+		})
+		const data = await response.json()
+		this.setState({ isLoading: false, photo: null, selectButton: false })
+		if (data.success) {
+			Alert.alert('Image successfuly uploaded')
+		} else {
+			Alert.alert('An error occured', data.data.error)
+		}
 	}
 
 	handleChoosePhoto = () => {
 		const options = {
 			noData: false,
-			mediaType: 'mixed'
 		};
 		ImagePicker.showImagePicker(options, response => {
 			if (response.uri) {
@@ -75,12 +95,23 @@ class UploadScreen extends React.Component {
 		const { photo } = this.state;
 		return (
 			<View style={[styles.container]}>
-				<View style={{ flex: 1, flexDirection: 'row' }}>
-					<View style={{ flex: 1, marginRight: 'auto', paddingTop: 10, paddingLeft: 10, alignItems: 'flex-start' }}>
-						<Button title='Select Photo' onPress={this.handleChoosePhoto} color={Colors.itemColor} disabled={this.state.selectButton} />
+				<View style={{ flex: 1 }}>
+					<View style={{ flexDirection: 'row' }}>
+						<View style={{ flex: 1, marginRight: 'auto', paddingTop: 10, paddingLeft: 10, alignItems: 'flex-start' }}>
+							<Button title='Select Photo' onPress={this.handleChoosePhoto} color={Colors.itemColor} disabled={this.state.selectButton} />
+						</View>
+						<View style={{ flex: 1, marginLeft: 'auto', paddingTop: 10, paddingRight: 10, alignItems: 'flex-end' }}>
+							<Button title='Upload Photo' onPress={() => this.uploadImage()} color={Colors.itemColor} disabled={this.state.uploadButton}></Button>
+						</View>
 					</View>
-					<View style={{ flex: 1, marginLeft: 'auto', paddingTop: 10, paddingRight: 10, alignItems: 'flex-end' }}>
-						<Button title='Upload Photo' onPress={() => this.uploadImage()} color={Colors.itemColor} disabled={this.state.uploadButton}></Button>
+
+					<View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10, marginRight: 10 }}>
+						<Text style={{ color: 'white', paddingTop: 2, paddingLeft: 5 }}>Album</Text>
+						<CheckBox
+							onClick={() => this.setState({ album: !this.state.album, public: false })}
+							isChecked={this.state.album}
+							style={{ paddingLeft: 5 }}
+						/>
 					</View>
 				</View>
 				<View style={{ flex: 1 }}></View>
