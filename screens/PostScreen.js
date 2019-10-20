@@ -2,6 +2,7 @@ import React from 'react';
 import TouchableImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
 import PageActionBar from '../components/PageActionBar'
+import CommentSection from '../components/CommentSection'
 import { getRequest, numberWithCommas } from '../screens/HomeScreen'
 import { connect } from 'react-redux'
 import Video from 'react-native-video'
@@ -99,7 +100,6 @@ export function DisplayComment({ item, dim }) {
 		gifLink.substr(gifLink.length - 4) === '.jpg')) {
 		if (gifLink.substr(gifLink.length - 4) === 'gifv')
 			gifLink = gifLink.substr(0, gifLink.length - 1)
-		// console.log(author + ' : ' + gifLink)
 		return (DisplayGifComment({ gifLink, item, dim, author, date }))
 	} else {
 		return (DisplayTextComment({ item, dim, author, date }))
@@ -108,12 +108,14 @@ export function DisplayComment({ item, dim }) {
 
 function DisplayVideo({ item, dim }) {
 	return (
-		<Video
-			style={[styles.img, { width: dim.width, height: dim.height }]}
-			source={{ uri: item.link }}
-			resizeMode={"cover"}
-			repeat={true}
-		/>
+		<View style={styles.img}>
+			<Video
+				style={{ width: dim.width, height: dim.height }}
+				source={{ uri: item.link }}
+				resizeMode={"cover"}
+				repeat={true}
+			/>
+		</View>
 	);
 }
 
@@ -128,7 +130,7 @@ function DisplayImage({ item, dim }) {
 	);
 }
 
-export function DisplayMedia({ item, dim }) {
+function DisplayMedia({ item, dim }) {
 	return (
 		<View elevation={7.5} style={[styles.item, { marginHorizontal: dim.box }]}>
 			{
@@ -150,7 +152,7 @@ export function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-export function DisplayTitle(item, title, dim, info, header) {
+function DisplayTitle(item, title, dim, info, header) {
 	if (item.all.points == undefined) {
 		item.all.points = '0'
 	} // image ou album privé
@@ -197,13 +199,26 @@ function DisplayActionBar(item) {
 					skinTrophee={require('../assets/images/trophee.png')}
 					skinView={require('../assets/images/view.png')}
 					countView={item.all.views}
-					vote={item.vote}
+					vote={item.all.vote}
 					fav={item.all.favorite}
 					id={item.all.id}
 					header={item.header}
 				/>) : (<View></View>)}
 		</View>
 	)
+}
+
+function DisplayCommentSection(item) {
+	if (item.isLogged)
+		return (
+			<CommentSection
+				id={item.albumId}
+				token={item.token}
+				navigation={item.navigation}
+			/>
+		)
+	else
+		return (<View></View>)
 }
 
 function Item({ item, title, info, header }) {
@@ -214,6 +229,9 @@ function Item({ item, title, info, header }) {
 	}
 	if (item.transition) {
 		return (DisplayActionBar(item, info, header))
+	}
+	if (item.commentSection) {
+		return (DisplayCommentSection(item, info, header))
 	}
 	if (item.comment) {
 		return (DisplayComment({ item, dim }))
@@ -246,16 +264,34 @@ class PostScreen extends React.Component {
 			transition: [
 				{
 					id: 'transition',
-					transition: 10,
+					transition: true,
 					all: this.props.navigation.state.params.all,
 					header: this.props.authorizationHeader,
-					isLogged: this.props.isLogged
+					isLogged: this.props.isLogged,
+				},
+			],
+			commentSection: [
+				{
+					id: 'commentSection',
+					commentSection: true,
+					albumId: this.props.navigation.state.params.album_id,
+					token: this.props.token,
+					isLogged: this.props.isLogged,
+					navigation: this.props.navigation,
 				},
 			],
 			title: null,
 			finishLoading: false,
 			header: this.props.authorizationHeader,
 		}
+	}
+	handleError = (data) => {
+		if (data == undefined) { return true }
+		if (data.data.error != undefined) {
+			console.log('Error : ' + data.data.error)
+			return true
+		}
+		return false
 	}
 	async componentDidMount() {
 		const gallery_uri = 'https://api.imgur.com/3/gallery/album/' + this.props.navigation.state.params.album_id
@@ -265,6 +301,11 @@ class PostScreen extends React.Component {
 			data = await getRequest(this.state.header, account_gallery_uri)
 		else
 			data = await getRequest(this.state.header, gallery_uri)
+		if (this.handleError(data)) {
+			this.props.navigation.goBack()
+			this.props.navigation.state.params.refresh(true, this.props.navigation, this.props.navigation.state.params.scrollPosition)
+			return
+		}
 		this.setState({
 			finishLoading: true,
 			data: [this.state.data[0]]
@@ -277,11 +318,13 @@ class PostScreen extends React.Component {
 		data = await getRequest(this.state.header, 'https://api.imgur.com/3/gallery/' + this.props.navigation.state.params.album_id + '/comments/best')
 		if (data.success)
 			this.setState({
-				data: this.state.data.concat(this.state.transition[0]).concat(data.data),
+				data: this.state.data.concat(this.state.transition[0]).concat(this.state.commentSection[0]).concat(data.data),
 			})
 		for (var i = 0; i < this.state.data.length; i++) {
 			this.state.data[i].id = i.toString()
 		}
+		this.refresh = this.props.navigation.state.params.refresh
+		// this.refresh()
 	}
 	render() {
 		return (

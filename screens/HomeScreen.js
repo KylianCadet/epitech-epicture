@@ -3,6 +3,7 @@ import TouchableImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
 import ActionButton from '../components/ButtonA'
 import HomeActionBar from '../components/HomeActionBar'
+import FilterSection from '../components/FilterSection'
 import React from 'react';
 import { connect } from 'react-redux'
 import {
@@ -51,7 +52,7 @@ function setDimensions(item) {
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function DisplayImage({ all, item, dim, images, album_id, navigation, info, test }) {
+function DisplayImage({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
 	return (
 		<TouchableImage
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -61,12 +62,13 @@ function DisplayImage({ all, item, dim, images, album_id, navigation, info, test
 			images={images}
 			all={all}
 			info={info}
-			test={test}
+			refresh={refresh}
+			scrollPosition={scrollPosition}
 		/>
 	)
 }
 
-function DisplayVideo({ all, item, dim, images, album_id, navigation, info }) {
+function DisplayVideo({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
 	return (
 		<TouchableVideo
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -76,6 +78,8 @@ function DisplayVideo({ all, item, dim, images, album_id, navigation, info }) {
 			images={images}
 			all={all}
 			info={info}
+			refresh={refresh}
+			scrollPosition={scrollPosition}
 		/>
 	)
 }
@@ -105,7 +109,7 @@ function DisplayActions({ all, item, dim, header }) {
 	)
 }
 
-function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header }) {
+function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header, refresh, scrollPosition }) {
 	var author = all.account_url
 	if (author.length > 10)
 		author = author.substr(0, 10)
@@ -123,9 +127,9 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 			{
 				item.type === 'video/mp4'
 					?
-					(DisplayVideo({ all, item, dim, images, album_id, navigation, info }))
+					(DisplayVideo({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }))
 					:
-					(DisplayImage({ all, item, dim, images, album_id, navigation, info }))
+					(DisplayImage({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }))
 			}
 			{
 				info.isLogged
@@ -138,7 +142,9 @@ function DisplayMedia({ all, item, dim, images, album_id, navigation, title, inf
 	);
 }
 
-function Item({ all, title, images, navigation, album_id, info, header }) {
+function Item({ all, title, images, navigation, album_id, info, header, refresh, scrollPosition }) {
+	if (all.filterSection)
+		return (<FilterSection params={all} />)
 	if (typeof images === 'undefined' || images === null) { return null }
 	var item = images[0]
 	var dim = setDimensions(item)
@@ -147,7 +153,7 @@ function Item({ all, title, images, navigation, album_id, info, header }) {
 		item.type === 'image/png' ||
 		item.type === 'image/gif' ||
 		item.type === 'image/jpeg')
-		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header }))
+		return (DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header, refresh, scrollPosition }))
 	else {
 		console.log('Unknow item : ' + item.type + ' ' + title)
 		return (null)
@@ -162,36 +168,111 @@ class HomeScreen extends React.Component {
 			data: null,
 			loading: false,
 			refreshing: false,
+			scrollPosition: 0,
 		}
+
+		this.filterSectionStatus = true
+		this.filters = {
+			section: 'top',
+			sort: 'viral',
+			date: 'all',
+		}
+
+		this.filterSection = [
+			{
+				id: '0',
+				filterSection: true,
+				filters: this.filters,
+				update: this.updateFilters,
+				refresh: this.handleRefresh,
+				getFilters: this.getFilters,
+				setHidden: this.setHidden,
+				getHidden: this.getHidden,
+			},
+		]
 	}
+
 	componentDidMount() {
 		this.makeRemoteRequest()
 	}
-	makeRemoteRequest = () => {
-		getRequest(this.props.authorizationHeader, 'https://api.imgur.com/3/gallery/top/viral/all/' + page.toString())
+
+	makeRemoteRequest = (errorLoading, navigation, pos) => {
+		var uri = 'https://api.imgur.com/3/gallery/'
+			+ this.filters.section + '/'
+			+ this.filters.sort + '/'
+			+ this.filters.date + '/'
+			+ page.toString()
+		console.log(uri)
+		getRequest(this.props.authorizationHeader, uri)
 			.then((data) => {
 				this.setState({
-					data: data.data,
+					data: this.filterSection.concat(data.data),
 					loading: false,
 					refreshing: false,
 				})
+				if (errorLoading) {
+					var freshData
+					for (var i = 0; i < data.data.length; i++) {
+						if (data.data[i].id == navigation.state.params.album_id) {
+							freshData = data.data[i]
+							break
+						}
+					}
+					setTimeout(() => {
+						this.goIndex(pos)
+					}, 500)
+					this.props.navigation.navigate('Post', {
+						images: navigation.state.params.images,
+						album_id: navigation.state.params.album_id,
+						all: freshData,
+						info: navigation.state.params.info,
+						refresh: navigation.state.params.refresh,
+					})
+				}
 			})
 	}
-	handleRefresh = () => {
-		console.log('refresh')
+
+	updateFilters = (_filters) => {
+		this.filters = _filters
+	}
+
+	getFilters = () => {
+		return this.filters
+	}
+
+	setHidden = (_hidden) => {
+		this.filterSectionStatus = _hidden
+	}
+
+	getHidden = () => {
+		return this.filterSectionStatus
+	}
+
+	handleRefresh = (errorLoading, navigation, pos) => {
 		this.setState(
 			{
 				data: [],
 				refreshing: true,
 			}, () => {
-				this.makeRemoteRequest()
+				this.makeRemoteRequest(errorLoading, navigation, pos)
 			}
 		)
 	}
+
+	goIndex = (pos) => {
+		this.flatListRef.scrollToOffset({ animated: false, offset: pos });
+	}
+
+	handleScroll = (event) => {
+		this.setState({ scrollPosition: event.nativeEvent.contentOffset.y })
+	}
+
 	render() {
 		return (
-			<SafeAreaView style={styles.container}>
+			<SafeAreaView style={styles.container} >
 				<FlatList
+					ref={(ref) => { this.flatListRef = ref; }}
+					onScroll={(event) => { this.handleScroll(event) }}
 					data={this.state.data}
 					renderItem={({ item }) => <Item
 						title={item.title}
@@ -200,6 +281,8 @@ class HomeScreen extends React.Component {
 						album_id={item.id}
 						navigation={this.props.navigation}
 						header={this.props.authorizationHeader}
+						refresh={this.handleRefresh.bind(this)}
+						scrollPosition={this.state.scrollPosition}
 						info={this.props} />}
 					keyExtractor={item => item.id}
 					refreshing={this.state.refreshing}

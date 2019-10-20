@@ -9,7 +9,7 @@ import PostScreen from '../screens/PostScreen';
 import UploadScreen from '../screens/UploadScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginWebView from '../screens/LoginWebView'
-import SearchView from '../screens/SearchScreen'
+import SearchScreen from '../screens/SearchScreen'
 import ImageScreen from '../screens/ImageScreen';
 import SettingsScreen from '../screens/SettingsScreen'
 import Colors from '../constants/Colors';
@@ -23,7 +23,7 @@ const navigationOpt = () => ({
 
 const SearchStack = createStackNavigator({
 	Search: {
-		screen: SearchView,
+		screen: SearchScreen,
 	},
 });
 

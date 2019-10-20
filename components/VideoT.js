@@ -11,6 +11,8 @@ export default class TouchableVideo extends React.Component {
 					album_id: this.props.album_id,
 					all: this.props.all,
 					info: this.props.info,
+					refresh: this.props.refresh,
+					scrollPosition: this.props.scrollPosition,
 				})}>
 					<Video
 						style={this.props.style}
