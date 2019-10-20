@@ -18,6 +18,7 @@ export default class TouchableVideo extends React.Component {
 						style={this.props.style}
 						source={{ uri: this.props.source }}
 						repeat={true}
+						muted={true}
 						resizeMode={"cover"}
 					/>
 				</TouchableHighlight>
