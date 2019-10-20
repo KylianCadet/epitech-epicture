@@ -5,9 +5,6 @@ import Colors from '../constants/Colors'
 class ImageSettingPannel extends React.Component {
 	constructor(props) {
 		super(props)
-		this.state = {
-			hidden: null,
-		}
 		this.info = null
 		this.image = null
 		this.text = ''
@@ -16,9 +13,6 @@ class ImageSettingPannel extends React.Component {
 		this.info = this.props.info
 		this.image = this.props.image
 		this.refresh = this.props.info.navigation.state.params.refresh
-		this.setState({
-			hidden: this.image.in_gallery ? false : true
-		})
 	}
 
 	async setTitle() {
@@ -58,50 +52,9 @@ class ImageSettingPannel extends React.Component {
 			console.log(data)
 		}
 	}
-	modifyHiddenState() {
-		this.setState({
-			hidden: !this.state.hidden
-		})
-	}
-	async setVisibilityTrue() {
-		console.log(this.image.id)
-		const response = await fetch('https://imgur.com/ajax/share', {
-			method: 'post',
-			headers: {
-				'Authorization': 'Bearer ' + this.props.info.token,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ hash: this.image.id, title: this.image.title.replace(/ /g, '+'), is_album: 0, mature: 0 })
-		})
-		const data = await response.json()
-		if (data.success) {
-			this.modifyHiddenState()
-			Alert.alert('Image is now public')
-		} else {
-			Alert.alert('An error occurred', data.data.error.message)
-			console.log(data)
-		}
-	}
-	async setVisibilityFalse() {
-		fetch('https://imgur.com/gallery/action/delete_image/' + this.image.id, {
-			method: 'post',
-			headers: {
-				'Authorization': 'Bearer ' + this.props.info.token,
-			},
-			body: JSON.stringify({ sid: '7e4b4b793439dbb0f5e52a5ce06ac092' })
-		})
-		this.modifyHiddenState()
-		Alert.alert('Image is now private')
-	}
-	async setVisibility() {
-		if (this.state.hidden)
-			this.setVisibilityTrue()
-		else
-			this.setVisibilityFalse()
-	}
 	render() {
 		return (
-			<View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+			<View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end',}}>
 				<TextInput
 					onChangeText={(text) => {
 						this.text = text
@@ -111,14 +64,6 @@ class ImageSettingPannel extends React.Component {
 					onSubmitEditing={() => { this.setTitle() }}
 				>
 				</TextInput>
-				<TouchableOpacity onPress={() => { this.setVisibility() }}>
-					{this.state.hidden ?
-						(<Image style={{ flex: 1, height: 30, width: 30, marginRight: 10, borderWidth: 10, resizeMode: 'contain' }} source={require('../assets/images/eyeIcon.png')}></Image>)
-						:
-						(<Image style={{ flex: 1, height: 30, width: 30, marginRight: 10, borderWidth: 10, resizeMode: 'contain' }} source={require('../assets/images/eyeIconCrossed.png')}></Image>)
-					}
-
-				</TouchableOpacity>
 				<TouchableOpacity onPress={() => { this.deleteImage() }}>
 					<Image style={{ flex: 1, height: 30, width: 30, marginRight: 10, borderWidth: 10, resizeMode: 'contain' }} source={require('../assets/images/trashIcon.png')} />
 				</TouchableOpacity>

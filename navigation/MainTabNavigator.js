@@ -25,6 +25,10 @@ const SearchStack = createStackNavigator({
 	Search: {
 		screen: SearchScreen,
 	},
+	Post: {
+		screen: PostScreen,
+		navigationOptions: navigationOpt,
+	},
 });
 
 SearchStack.navigationOptions = {
@@ -82,6 +86,10 @@ const ProfileStack = createStackNavigator({
 	},
 	Post: {
 		screen: PostScreen,
+		navigationOptions: navigationOpt,
+	},
+	Post: {
+		screen: SearchScreen,
 		navigationOptions: navigationOpt,
 	},
 	Image: {

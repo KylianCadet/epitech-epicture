@@ -12,6 +12,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+// cookies
+import com.psykar.cookiemanager.CookieManagerPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 

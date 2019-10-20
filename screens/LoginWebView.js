@@ -32,7 +32,10 @@ function parse_query(queryString) {
 class LoginWebView extends React.Component {
 	constructor(props) {
 		super(props)
+		this.navigation_params = this.props.navigation.state.params
+		this.refresh = this.navigation_params ? (this.navigation_params.refresh ? this.navigation_params.refresh : this.nothing) : this.nothing
 	}
+	nothing() { }
 	render() {
 		return (
 			<WebView
@@ -47,6 +50,7 @@ class LoginWebView extends React.Component {
 					}
 					if (token['access_token']) {
 						this.props.onLogin(token)
+						this.refresh()
 						this.props.navigation.goBack()
 						return;
 					}
@@ -64,15 +68,10 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		onLogin: (name) => {
-			dispatch(dispatch_function('ACCOUNT_INFO', name))
 			dispatch(dispatch_function('LOGIN'))
 			dispatch(dispatch_function('TOKEN', name['access_token']))
 			dispatch(dispatch_function('USERNAME', name['account_username']))
 			dispatch(dispatch_function('AUTHORIZATION', name['access_token']))
-			AsyncStorage.setItem('isLogged', 'true')
-			AsyncStorage.setItem('token', name['access_token'])
-			AsyncStorage.setItem('username', name['account_username'])
-			console.log("REFRESH TOKEN : " + name['refresh_token'])
 			AsyncStorage.setItem('refresh_token', name['refresh_token'])
 		},
 	}

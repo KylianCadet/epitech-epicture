@@ -1,8 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, ImageBackground, Image, Button, TouchableOpacity, Alert } from 'react-native';
 import { connect } from 'react-redux'
+import { dispatch_function } from '../redux/reducers/index'
 import Colors from '../constants/Colors';
 import { TextInput } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-community/async-storage';
+import CookieManager from 'react-native-cookies';
 
 class SettingsScreen extends React.Component {
 	constructor(props) {
@@ -26,11 +29,19 @@ class SettingsScreen extends React.Component {
 		const data = await response.json()
 		if (data.success) {
 			Alert.alert('Success')
-			this.refresh()
+			this.refresh(this.username)
+			this.props.modifyUsername(this.username)
 			this.props.navigation.goBack()
 		} else {
 			Alert.alert('An error occurred')
 		}
+	}
+	signOut() {
+		this.props.signOut()
+		AsyncStorage.removeItem('refresh_token')
+		CookieManager.clearAll();
+		Alert.alert('Success')
+		this.props.navigation.goBack()
 	}
 	render() {
 		return (
@@ -52,6 +63,9 @@ class SettingsScreen extends React.Component {
 						<View style={{ flex: 1 }}></View>
 					</View>
 					<View style={{ flex: 1, flexDirection: 'row' }}>
+					<TouchableOpacity style={{ flex: 1 }} onPress={() => this.signOut()}>
+							<Text style={{ color: 'white', marginTop: 'auto', marginRight: 'auto', paddingBottom: 20, paddingLeft: 20 }}>Sign Out</Text>
+						</TouchableOpacity>
 						<TouchableOpacity style={{ flex: 1 }} onPress={() => this.uploadSettings()}>
 							<Text style={{ color: 'green', marginTop: 'auto', marginLeft: 'auto', paddingBottom: 20, paddingRight: 20 }}>Save</Text>
 						</TouchableOpacity>
@@ -70,7 +84,22 @@ function mapStateToProps(state) {
 	}
 }
 
-export default connect(mapStateToProps)(SettingsScreen)
+
+function mapDispatchToProps(dispatch) {
+	return {
+		modifyUsername: (name) => {
+			dispatch(dispatch_function('USERNAME', name))
+		},
+		signOut: (name) => {
+			dispatch(dispatch_function('USERNAME_CLEAR'))
+			dispatch(dispatch_function('AUTHORIZATION_CLEAR'))
+			dispatch(dispatch_function('LOGIN_CLEAR'))
+			dispatch(dispatch_function('TOKEN_CLEAR'))
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsScreen)
 
 const styles = StyleSheet.create({
 	container: {

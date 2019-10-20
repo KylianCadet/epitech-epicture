@@ -7,7 +7,6 @@ import HomeActionBar from '../components/HomeActionBar'
 import Colors from '../constants/Colors';
 import { fetchBearer, fetchAuthorization } from './customFetch';
 
-
 function setDimensions(item) {
 	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
 	var newwidth = Dimensions.get('window').width * 0.9
@@ -111,7 +110,7 @@ function ScoreFooter({ score, images_count }) {
 function ImageFooter({ image, album }) {
 	var images_count = 0
 	if (album) {
-		images_count = album.images.length
+		images_count = album.images ? album.images.length : 1
 		if (album.points) {
 			return <ScoreFooter score={album.points} images_count={images_count}></ScoreFooter>
 		}
@@ -163,13 +162,13 @@ function generateImage(elem, navigate, refresh) {
 	var image = null
 	var album = null
 	if (elem.is_album) {
-		image = elem.images[0]
+		image = elem.images ? elem.images[0] : elem
 		album = elem
 	}
 	else
 		image = elem
 	if (!image)
-		return (<View></View>)
+		return (<View/>)
 	if (
 		image.type === 'video/mp4' ||
 		image.type === 'image/png' ||

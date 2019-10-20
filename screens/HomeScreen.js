@@ -1,7 +1,6 @@
 // import * as WebBrowser from 'expo-web-browser';
 import TouchableImage from '../components/ImageT'
 import TouchableVideo from '../components/VideoT'
-import ActionButton from '../components/ButtonA'
 import HomeActionBar from '../components/HomeActionBar'
 import FilterSection from '../components/FilterSection'
 import React from 'react';
@@ -45,14 +44,14 @@ export function postRequest(header, url) {
 		.catch((error) => console.error(error))
 }
 
-function setDimensions(item) {
+export function setDimensions(item) {
 	var newheight = Dimensions.get('window').width * item.height / item.width * 0.9
 	var newwidth = Dimensions.get('window').width * 0.9
 	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
 	return ({ width: newwidth, height: newheight, box: boxwidth })
 }
 
-function DisplayImage({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
+export function DisplayImage({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
 	return (
 		<TouchableImage
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -68,7 +67,7 @@ function DisplayImage({ all, item, dim, images, album_id, navigation, info, refr
 	)
 }
 
-function DisplayVideo({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
+export function DisplayVideo({ all, item, dim, images, album_id, navigation, info, refresh, scrollPosition }) {
 	return (
 		<TouchableVideo
 			style={[styles.image, { width: dim.width, height: dim.height }]}
@@ -88,7 +87,7 @@ export function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function DisplayActions({ all, item, dim, header }) {
+export function DisplayActions({ all, item, dim, header }) {
 	// console.log(all.title + ' : ' + all.vote)
 	return (
 		<HomeActionBar
@@ -109,7 +108,7 @@ function DisplayActions({ all, item, dim, header }) {
 	)
 }
 
-function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header, refresh, scrollPosition }) {
+export function DisplayMedia({ all, item, dim, images, album_id, navigation, title, info, header, refresh, scrollPosition }) {
 	var author = all.account_url
 	if (author.length > 10)
 		author = author.substr(0, 10)
