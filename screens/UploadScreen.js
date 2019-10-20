@@ -127,7 +127,6 @@ UploadScreen.navigationOptions = {
 
 function mapStateToProps(state) {
 	return {
-		accountInfo: state.accountInfo,
 		isLogged: state.isLogged,
 		token: state.token,
 		username: state.username

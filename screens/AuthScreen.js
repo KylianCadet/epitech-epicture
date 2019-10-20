@@ -65,14 +65,12 @@ function mapDispatchToProps(dispatch) {
 					.then((response) => response.json())
 					.then((data) => {
 						if (data.access_token) {
-							console.log(data)
 							dispatch(dispatch_function('TOKEN', data['access_token']))
 							dispatch(dispatch_function('AUTHORIZATION', data['access_token']))
 							dispatch(dispatch_function('USERNAME', data['account_username']))
 							AsyncStorage.setItem('refresh_token', data['refresh_token'])
 							dispatch(dispatch_function('LOGIN'))
 						} else {
-							console.log(data)
 							AsyncStorage.removeItem('refresh_token')
 						}
 					})

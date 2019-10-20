@@ -158,15 +158,6 @@ function ImageComponent({ image, navigate, album, refresh }) {
 	)
 }
 
-function EmptyAlbum({ album, refresh }) {
-	var newwidth = Dimensions.get('window').width * 0.9
-	var boxwidth = (Dimensions.get('window').width - newwidth) / 2
-	return (
-		<View elevation={7.5} style={[styles.item, { marginHorizontal: boxwidth }]}>
-			<Text style={{ color: 'white' }}>EMPTY</Text>
-		</View>
-	)
-}
 function generateImage(elem, navigate, refresh) {
 	var image = null
 	var album = null
@@ -177,7 +168,7 @@ function generateImage(elem, navigate, refresh) {
 	else
 		image = elem
 	if (!image)
-		return (<EmptyAlbum album={album} refresh={refresh} />)
+		return (<View/>)
 	if (
 		image.type === 'video/mp4' ||
 		image.type === 'image/png' ||
