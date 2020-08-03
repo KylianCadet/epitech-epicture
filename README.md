@@ -14,6 +14,6 @@ The goal of this project is to use and implement an online photo sharing API pla
 - Filter the displayed photos
 
 ## Preview
-![alt home](https://github.com/KylianCadet/epitech-epicture/blob/master/github/home.jpg?raw=true)
-![alt upload](https://github.com/KylianCadet/epitech-epicture/blob/master/github/upload.jpg?raw=true)
-![alt profile](https://github.com/KylianCadet/epitech-epicture/blob/master/github/profile.jpg?raw=true)
+<img align="left" src="https://github.com/KylianCadet/epitech-epicture/blob/master/github/home.jpg?raw=true" alt="home" width="30%"/>
+<img align="left" src="https://github.com/KylianCadet/epitech-epicture/blob/master/github/upload.jpg?raw=true" alt="upload" width="30%"/>
+<img align="left" src="https://github.com/KylianCadet/epitech-epicture/blob/master/github/profile.jpg?raw=true" alt="profile" width="30%"/>
